@@ -270,6 +270,59 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
           </footer>
         );
 
+      case 'services':
+      case 'testimonials':
+      case 'contact':
+      case 'team':
+      case 'pricing':
+      case 'features':
+      case 'blog':
+        return (
+          <section 
+            id={section.id}
+            key={section.id}
+            className={`py-16 px-4 ${sectionClasses}`}
+            style={baseStyle}
+            onClick={() => handleSectionClick(section.id)}
+          >
+            <div className="max-w-4xl mx-auto text-center">
+              {section.textElements && section.textElements.length > 0 ? (
+                section.textElements.map((textEl) => (
+                  <div
+                    key={textEl.id}
+                    className={`mb-4 ${textEl.fontSize} ${textEl.fontFamily} ${
+                      section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                        ? 'text-white' 
+                        : 'text-foreground'
+                    }`}
+                  >
+                    {textEl.content}
+                  </div>
+                ))
+              ) : (
+                <>
+                  <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${
+                    section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                      ? 'text-white' 
+                      : 'text-foreground'
+                  }`}>
+                    {section.content.split(' | ')[0] || section.type.charAt(0).toUpperCase() + section.type.slice(1)}
+                  </h2>
+                  {section.content.split(' | ')[1] && (
+                    <p className={`text-lg ${
+                      section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                        ? 'text-white/90' 
+                        : 'text-muted-foreground'
+                    }`}>
+                      {section.content.split(' | ')[1]}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          </section>
+        );
+
       default:
         return null;
     }
@@ -278,12 +331,7 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
   return (
     <div className="w-full h-full bg-white overflow-y-auto">
       <div className="min-h-full">
-        {sections
-          .sort((a, b) => {
-            const order = { navbar: 0, hero: 1, about: 2, gallery: 3, footer: 4 };
-            return (order[a.type] || 99) - (order[b.type] || 99);
-          })
-          .map(renderSection)}
+        {sections.map(renderSection)}
       </div>
     </div>
   );

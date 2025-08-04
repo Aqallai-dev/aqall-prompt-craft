@@ -251,12 +251,12 @@ const Editor = () => {
 
           {/* Right Panel - Live Preview */}
           <div className="bg-card rounded-lg border overflow-hidden">
-            <div className="p-4 border-b bg-muted/30">
-              <h3 className="font-semibold text-foreground">{t('livePreview')}</h3>
-              <p className="text-sm text-muted-foreground">Click on any section to edit it</p>
+            <div className="p-3 border-b bg-muted/30">
+              <h3 className="font-semibold text-foreground text-sm">{t('livePreview')}</h3>
+              <p className="text-xs text-muted-foreground">Click on any section to edit it</p>
             </div>
             <div className="h-full overflow-y-auto">
-              <LivePreview 
+              <LivePreview
                 sections={sections} 
                 onSectionClick={handleSectionClick}
                 selectedSection={selectedSection}

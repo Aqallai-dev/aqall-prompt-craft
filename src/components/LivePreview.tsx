@@ -1,10 +1,23 @@
-import { SectionData } from "./WebsiteBuilder";
+import { SectionData } from "../pages/Editor";
 
 interface LivePreviewProps {
   sections: SectionData[];
+  onSectionClick?: (sectionId: string) => void;
+  selectedSection?: string | null;
 }
 
-export const LivePreview = ({ sections }: LivePreviewProps) => {
+export const LivePreview = ({ sections, onSectionClick, selectedSection }: LivePreviewProps) => {
+  const handleSectionClick = (sectionId: string) => {
+    onSectionClick?.(sectionId);
+  };
+
+  const scrollToSection = (targetId: string) => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const renderSection = (section: SectionData) => {
     const baseStyle = {
       backgroundColor: section.backgroundColor,
@@ -13,27 +26,63 @@ export const LivePreview = ({ sections }: LivePreviewProps) => {
       backgroundPosition: 'center',
     };
 
+    const isSelected = selectedSection === section.id;
+    const sectionClasses = `cursor-pointer transition-all duration-200 ${
+      isSelected ? 'ring-4 ring-primary ring-opacity-50' : 'hover:ring-2 hover:ring-primary/30'
+    }`;
+
     switch (section.type) {
       case 'navbar':
+        const navItems = section.content.split(' | ');
         return (
           <nav 
+            id={section.id}
             key={section.id}
-            className="p-4 text-center border-b"
+            className={`p-4 text-center border-b ${sectionClasses}`}
             style={baseStyle}
+            onClick={() => handleSectionClick(section.id)}
           >
             <div className="flex items-center justify-between max-w-6xl mx-auto">
-              {section.content.split(' | ').map((item, index) => (
-                <span 
-                  key={index} 
-                  className={`${index === 0 ? 'font-bold text-lg' : 'hover:text-teal-accent cursor-pointer'} ${
-                    section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                      ? 'text-white' 
-                      : 'text-foreground'
-                  }`}
-                >
-                  {item}
+              {/* Logo */}
+              <div className="flex items-center gap-3">
+                {section.logo && (
+                  <img 
+                    src={section.logo} 
+                    alt="Logo" 
+                    className="h-8 w-auto object-contain"
+                  />
+                )}
+                <span className={`font-bold text-lg ${
+                  section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                    ? 'text-white' 
+                    : 'text-foreground'
+                }`}>
+                  {navItems[0]}
                 </span>
-              ))}
+              </div>
+
+              {/* Navigation Links */}
+              <div className="flex items-center gap-6">
+                {navItems.slice(1).map((item, index) => (
+                  <span 
+                    key={index} 
+                    className={`hover:text-teal-accent cursor-pointer transition-colors ${
+                      section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                        ? 'text-white hover:text-white/70' 
+                        : 'text-foreground hover:text-primary'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const targetSection = section.scrollTargets?.[item];
+                      if (targetSection) {
+                        scrollToSection(targetSection);
+                      }
+                    }}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
           </nav>
         );
@@ -42,9 +91,11 @@ export const LivePreview = ({ sections }: LivePreviewProps) => {
         const heroContent = section.content.split(' | ');
         return (
           <section 
+            id={section.id}
             key={section.id}
-            className="py-20 px-4 text-center"
+            className={`py-20 px-4 text-center ${sectionClasses}`}
             style={baseStyle}
+            onClick={() => handleSectionClick(section.id)}
           >
             <div className="max-w-4xl mx-auto">
               <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${
@@ -78,9 +129,11 @@ export const LivePreview = ({ sections }: LivePreviewProps) => {
         const aboutContent = section.content.split(' | ');
         return (
           <section 
+            id={section.id}
             key={section.id}
-            className="py-16 px-4"
+            className={`py-16 px-4 ${sectionClasses}`}
             style={baseStyle}
+            onClick={() => handleSectionClick(section.id)}
           >
             <div className="max-w-4xl mx-auto text-center">
               <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${
@@ -106,9 +159,11 @@ export const LivePreview = ({ sections }: LivePreviewProps) => {
       case 'footer':
         return (
           <footer 
+            id={section.id}
             key={section.id}
-            className="py-8 px-4 text-center border-t"
+            className={`py-8 px-4 text-center border-t ${sectionClasses}`}
             style={baseStyle}
+            onClick={() => handleSectionClick(section.id)}
           >
             <div className="max-w-6xl mx-auto">
               <p className={`${

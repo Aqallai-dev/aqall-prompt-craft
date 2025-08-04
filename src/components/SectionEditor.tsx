@@ -4,22 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { SectionData } from "./WebsiteBuilder";
+import { LogoUploader } from "./LogoUploader";
+import { BackgroundImageUploader } from "./BackgroundImageUploader";
+import { SectionData } from "../pages/Editor";
+import { useLanguage } from "@/hooks/useLanguage";
 import { 
   Palette, 
-  Image, 
   Trash2, 
   Navigation, 
   Star, 
   FileText, 
-  CreditCard 
+  CreditCard,
+  Link,
+  Image as ImageIcon
 } from "lucide-react";
 
 interface SectionEditorProps {
   section: SectionData;
+  isSelected?: boolean;
   onUpdate: (updates: Partial<SectionData>) => void;
+  onSelect?: () => void;
+  availableSections?: SectionData[];
 }
 
 const sectionIcons = {
@@ -36,9 +44,16 @@ const sectionColors = {
   footer: "bg-orange-500",
 };
 
-export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const SectionEditor = ({ 
+  section, 
+  isSelected = false, 
+  onUpdate, 
+  onSelect, 
+  availableSections = [] 
+}: SectionEditorProps) => {
+  const [isExpanded, setIsExpanded] = useState(isSelected);
   const [colorInput, setColorInput] = useState(section.backgroundColor);
+  const { t } = useLanguage();
   
   const Icon = sectionIcons[section.type];
 
@@ -51,16 +66,37 @@ export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
     onUpdate({ backgroundColor });
   };
 
+  const handleBackgroundImageChange = (backgroundImage: string | undefined) => {
+    onUpdate({ backgroundImage });
+  };
+
+  const handleLogoChange = (logo: string | undefined) => {
+    onUpdate({ logo });
+  };
+
   const removeBackground = () => {
     onUpdate({ backgroundColor: 'transparent', backgroundImage: undefined });
     setColorInput('transparent');
   };
 
+  const handleScrollTargetChange = (linkText: string, targetSection: string) => {
+    const newScrollTargets = { 
+      ...section.scrollTargets, 
+      [linkText]: targetSection 
+    };
+    onUpdate({ scrollTargets: newScrollTargets });
+  };
+
+  const navLinks = section.type === 'navbar' ? section.content.split(' | ') : [];
+
   return (
-    <Card className="transition-all duration-200 hover:shadow-md">
+    <Card className={`transition-all duration-200 hover:shadow-md ${isSelected ? 'ring-2 ring-primary' : ''}`}>
       <CardHeader 
         className="pb-3 cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => {
+          setIsExpanded(!isExpanded);
+          onSelect?.();
+        }}
       >
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -68,9 +104,9 @@ export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
               <Icon className="w-4 h-4" />
             </div>
             <div>
-              <span className="capitalize font-semibold">{section.type}</span>
+              <span className="capitalize font-semibold">{t(section.type)}</span>
               <Badge variant="outline" className="ml-2 text-xs">
-                {section.backgroundColor === 'transparent' ? 'No Background' : 'Custom Background'}
+                {section.backgroundColor === 'transparent' ? t('noBackground') : t('customBackground')}
               </Badge>
             </div>
           </div>
@@ -85,12 +121,12 @@ export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
       </CardHeader>
 
       {isExpanded && (
-        <CardContent className="pt-0 space-y-4">
+        <CardContent className="pt-0 space-y-6">
           <Separator />
           
           {/* Content Editor */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Content</Label>
+            <Label className="text-sm font-medium">{t('content')}</Label>
             <Textarea
               value={section.content}
               onChange={(e) => handleContentChange(e.target.value)}
@@ -99,11 +135,67 @@ export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
             />
           </div>
 
-          {/* Background Controls */}
+          {/* Logo Uploader for Navbar */}
+          {section.type === 'navbar' && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" />
+                {t('logo')}
+              </Label>
+              <LogoUploader 
+                logo={section.logo}
+                onLogoChange={handleLogoChange}
+              />
+            </div>
+          )}
+
+          {/* Scroll Targets for Navbar */}
+          {section.type === 'navbar' && navLinks.length > 1 && (
+            <div className="space-y-3">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Link className="w-4 h-4" />
+                {t('scrollTarget')}
+              </Label>
+              {navLinks.slice(1).map((linkText, index) => (
+                <div key={index} className="flex gap-2 items-center">
+                  <span className="text-sm font-medium min-w-[80px]">{linkText}:</span>
+                  <Select
+                    value={section.scrollTargets?.[linkText] || ''}
+                    onValueChange={(value) => handleScrollTargetChange(linkText, value)}
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder={t('selectSection')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableSections.map((sect) => (
+                        <SelectItem key={sect.id} value={sect.id}>
+                          {t(sect.type)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Background Image Uploader */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              <ImageIcon className="w-4 h-4" />
+              Background Image
+            </Label>
+            <BackgroundImageUploader 
+              backgroundImage={section.backgroundImage}
+              onBackgroundImageChange={handleBackgroundImageChange}
+            />
+          </div>
+
+          {/* Background Color Controls */}
           <div className="space-y-3">
             <Label className="text-sm font-medium flex items-center gap-2">
               <Palette className="w-4 h-4" />
-              Background
+              {t('background')}
             </Label>
             
             <div className="flex gap-2">
@@ -121,7 +213,7 @@ export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
                 size="sm"
                 variant="outline"
               >
-                Apply
+                {t('applyColor')}
               </Button>
             </div>
 
@@ -133,7 +225,7 @@ export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
                 className="flex items-center gap-2"
               >
                 <Trash2 className="w-3 h-3" />
-                Remove Background
+                {t('removeBackground')}
               </Button>
               
               <div className="flex gap-1">
@@ -154,9 +246,13 @@ export const SectionEditor = ({ section, onUpdate }: SectionEditorProps) => {
               <span className="text-muted-foreground">Preview: </span>
               <span 
                 className="px-2 py-1 rounded text-xs"
-                style={{ backgroundColor: section.backgroundColor, color: section.backgroundColor === 'transparent' ? 'inherit' : 'white' }}
+                style={{ 
+                  backgroundColor: section.backgroundColor, 
+                  backgroundImage: section.backgroundImage ? `url(${section.backgroundImage})` : undefined,
+                  color: section.backgroundColor === 'transparent' ? 'inherit' : 'white' 
+                }}
               >
-                {section.backgroundColor === 'transparent' ? 'No Background' : 'Sample Text'}
+                {section.backgroundColor === 'transparent' && !section.backgroundImage ? t('noBackground') : 'Sample Text'}
               </span>
             </div>
           </div>

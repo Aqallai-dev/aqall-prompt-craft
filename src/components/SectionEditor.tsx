@@ -9,7 +9,9 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { LogoUploader } from "./LogoUploader";
 import { BackgroundImageUploader } from "./BackgroundImageUploader";
-import { SectionData } from "../pages/Editor";
+import { TextElementEditor } from "./TextElementEditor";
+import { GalleryUploader } from "./GalleryUploader";
+import { SectionData, TextElement } from "../pages/Editor";
 import { useLanguage } from "@/hooks/useLanguage";
 import { 
   Palette, 
@@ -27,6 +29,7 @@ interface SectionEditorProps {
   isSelected?: boolean;
   onUpdate: (updates: Partial<SectionData>) => void;
   onSelect?: () => void;
+  onRemove?: () => void;
   availableSections?: SectionData[];
 }
 
@@ -35,6 +38,7 @@ const sectionIcons = {
   hero: Star,
   about: FileText,
   footer: CreditCard,
+  gallery: ImageIcon,
 };
 
 const sectionColors = {
@@ -42,6 +46,7 @@ const sectionColors = {
   hero: "bg-purple-500", 
   about: "bg-green-500",
   footer: "bg-orange-500",
+  gallery: "bg-pink-500",
 };
 
 export const SectionEditor = ({ 
@@ -49,6 +54,7 @@ export const SectionEditor = ({
   isSelected = false, 
   onUpdate, 
   onSelect, 
+  onRemove,
   availableSections = [] 
 }: SectionEditorProps) => {
   const [isExpanded, setIsExpanded] = useState(isSelected);
@@ -110,13 +116,28 @@ export const SectionEditor = ({
               </Badge>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            {isExpanded ? '−' : '+'}
-          </Button>
+          <div className="flex items-center gap-2">
+            {onRemove && section.type !== 'navbar' && section.type !== 'hero' && section.type !== 'footer' && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {isExpanded ? '−' : '+'}
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
 
@@ -124,9 +145,17 @@ export const SectionEditor = ({
         <CardContent className="pt-0 space-y-6">
           <Separator />
           
-          {/* Content Editor */}
+          {/* Text Elements Editor */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">{t('content')}</Label>
+            <TextElementEditor
+              textElements={section.textElements || []}
+              onUpdate={(textElements) => onUpdate({ textElements })}
+            />
+          </div>
+
+          {/* Legacy Content Editor (for backward compatibility) */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">{t('legacyContent')}</Label>
             <Textarea
               value={section.content}
               onChange={(e) => handleContentChange(e.target.value)}
@@ -134,6 +163,28 @@ export const SectionEditor = ({
               className="min-h-[80px] resize-none"
             />
           </div>
+
+          {/* Company Info for Navbar */}
+          {section.type === 'navbar' && (
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">{t('companyName')}</Label>
+                <Input
+                  value={section.companyName || ''}
+                  onChange={(e) => onUpdate({ companyName: e.target.value })}
+                  placeholder="Enter company name..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">{t('slogan')}</Label>
+                <Input
+                  value={section.slogan || ''}
+                  onChange={(e) => onUpdate({ slogan: e.target.value })}
+                  placeholder="Enter slogan (optional)..."
+                />
+              </div>
+            </div>
+          )}
 
           {/* Logo Uploader for Navbar */}
           {section.type === 'navbar' && (
@@ -145,6 +196,16 @@ export const SectionEditor = ({
               <LogoUploader 
                 logo={section.logo}
                 onLogoChange={handleLogoChange}
+              />
+            </div>
+          )}
+
+          {/* Gallery Images */}
+          {section.type === 'gallery' && (
+            <div className="space-y-2">
+              <GalleryUploader
+                images={section.galleryImages || []}
+                onImagesChange={(images) => onUpdate({ galleryImages: images })}
               />
             </div>
           )}

@@ -50,6 +50,16 @@ const translations = {
     typography: "Typography",
     fontSize: "Font Size", 
     fontFamily: "Font Family",
+    textElements: "Text Elements",
+    addText: "Add Text",
+    legacyContent: "Legacy Content",
+    companyName: "Company Name",
+    slogan: "Slogan",
+    galleryImages: "Gallery Images",
+    clickToUpload: "Click to upload",
+    orDragAndDrop: "or drag and drop",
+    addSection: "Add Section",
+    gallery: "Gallery",
     
     // Messages
     websiteGenerated: "Website generated successfully!",
@@ -103,6 +113,16 @@ const translations = {
     typography: "الطباعة",
     fontSize: "حجم الخط",
     fontFamily: "نوع الخط",
+    textElements: "عناصر النص",
+    addText: "إضافة نص",
+    legacyContent: "المحتوى القديم",
+    companyName: "اسم الشركة",
+    slogan: "الشعار",
+    galleryImages: "صور المعرض",
+    clickToUpload: "انقر للرفع",
+    orDragAndDrop: "أو اسحب وأسقط",
+    addSection: "إضافة قسم",
+    gallery: "معرض الصور",
     
     // Messages
     websiteGenerated: "تم إنشاء الموقع بنجاح!",

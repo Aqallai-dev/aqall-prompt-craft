@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SectionEditor } from "@/components/SectionEditor";
 import { LivePreview } from "@/components/LivePreview";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -10,16 +11,28 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { ArrowLeft, Settings } from "lucide-react";
 import { toast } from "sonner";
 
+export interface TextElement {
+  id: string;
+  content: string;
+  fontSize: string;
+  fontFamily: string;
+  color?: string;
+}
+
 export interface SectionData {
   id: string;
-  type: 'navbar' | 'hero' | 'about' | 'footer';
-  content: string;
+  type: 'navbar' | 'hero' | 'about' | 'footer' | 'gallery';
+  content: string; // Keep for backward compatibility
+  textElements?: TextElement[];
   backgroundColor: string;
   backgroundImage?: string;
   logo?: string;
-  scrollTargets?: { [key: string]: string }; // For navbar links
+  companyName?: string;
+  slogan?: string;
+  scrollTargets?: { [key: string]: string };
   fontSize?: string;
   fontFamily?: string;
+  galleryImages?: string[];
 }
 
 const Editor = () => {
@@ -32,6 +45,8 @@ const Editor = () => {
       id: 'navbar',
       type: 'navbar',
       content: `${t('home')} | ${t('about_nav')} | ${t('services')} | ${t('contact')}`,
+      companyName: 'Aqall AI',
+      slogan: 'Website Builder',
       backgroundColor: 'transparent',
       scrollTargets: {
         [t('home')]: 'hero',
@@ -44,12 +59,20 @@ const Editor = () => {
       id: 'hero',
       type: 'hero',
       content: `${t('landingHeading')} | ${t('landingDescription')}`,
+      textElements: [
+        { id: '1', content: t('landingHeading'), fontSize: 'text-4xl', fontFamily: 'font-bold' },
+        { id: '2', content: t('landingDescription'), fontSize: 'text-lg', fontFamily: 'font-normal' }
+      ],
       backgroundColor: 'hsl(var(--teal-dark))',
     },
     {
       id: 'about',
       type: 'about',
       content: `${t('about')} | We create innovative solutions for the modern web.`,
+      textElements: [
+        { id: '1', content: t('about'), fontSize: 'text-3xl', fontFamily: 'font-bold' },
+        { id: '2', content: 'We create innovative solutions for the modern web.', fontSize: 'text-lg', fontFamily: 'font-normal' }
+      ],
       backgroundColor: 'hsl(var(--background))',
     },
     {
@@ -104,6 +127,24 @@ const Editor = () => {
     ));
   };
 
+  const addSection = (type: SectionData['type']) => {
+    const newSection: SectionData = {
+      id: `${type}-${Date.now()}`,
+      type,
+      content: `New ${type} section`,
+      textElements: [
+        { id: '1', content: `New ${type} section`, fontSize: 'text-lg', fontFamily: 'font-normal' }
+      ],
+      backgroundColor: 'hsl(var(--background))',
+      ...(type === 'gallery' && { galleryImages: [] })
+    };
+    setSections(prev => [...prev, newSection]);
+  };
+
+  const removeSection = (id: string) => {
+    setSections(prev => prev.filter(section => section.id !== id));
+  };
+
   const handleSectionClick = (sectionId: string) => {
     setSelectedSection(sectionId);
   };
@@ -154,8 +195,26 @@ const Editor = () => {
               <h2 className="text-lg font-semibold">{t('customizeSections')}</h2>
             </div>
 
-            {/* Section Editors */}
             <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-primary" />
+                  <h2 className="text-lg font-semibold">{t('customizeSections')}</h2>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Select onValueChange={addSection}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder={t('addSection')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="about">About</SelectItem>
+                      <SelectItem value="gallery">Gallery</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               {sections.map((section) => (
                 <SectionEditor
                   key={section.id}
@@ -163,6 +222,7 @@ const Editor = () => {
                   isSelected={selectedSection === section.id}
                   onUpdate={(updates) => updateSection(section.id, updates)}
                   onSelect={() => handleSectionClick(section.id)}
+                  onRemove={() => removeSection(section.id)}
                   availableSections={sections}
                 />
               ))}

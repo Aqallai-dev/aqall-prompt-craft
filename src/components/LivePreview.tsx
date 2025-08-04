@@ -42,24 +42,35 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
-            <div className="flex items-center justify-between max-w-6xl mx-auto">
-              {/* Logo */}
-              <div className="flex items-center gap-3">
-                {section.logo && (
-                  <img 
-                    src={section.logo} 
-                    alt="Logo" 
-                    className="h-8 w-auto object-contain"
-                  />
-                )}
-                <span className={`font-bold text-lg ${
-                  section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                    ? 'text-white' 
-                    : 'text-foreground'
-                }`}>
-                  {navItems[0]}
-                </span>
-              </div>
+             <div className="flex items-center justify-between max-w-6xl mx-auto">
+               {/* Logo and Company Info */}
+               <div className="flex items-center gap-3">
+                 {section.logo && (
+                   <img 
+                     src={section.logo} 
+                     alt="Logo" 
+                     className="h-8 w-auto object-contain"
+                   />
+                 )}
+                 <div>
+                   <span className={`font-bold text-lg ${
+                     section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                       ? 'text-white' 
+                       : 'text-foreground'
+                   }`}>
+                     {section.companyName || navItems[0]}
+                   </span>
+                   {section.slogan && (
+                     <p className={`text-xs ${
+                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                         ? 'text-white/70' 
+                         : 'text-muted-foreground'
+                     }`}>
+                       {section.slogan}
+                     </p>
+                   )}
+                 </div>
+               </div>
 
               {/* Navigation Links */}
               <div className="flex items-center gap-6">
@@ -96,33 +107,50 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
             className={`py-20 px-4 text-center ${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
-          >
-            <div className="max-w-4xl mx-auto">
-              <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${
-                section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                  ? 'text-white' 
-                  : 'text-foreground'
-              }`}>
-                {heroContent[0] || 'Welcome'}
-              </h1>
-              {heroContent[1] && (
-                <p className={`text-lg md:text-xl mb-8 ${
-                  section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                    ? 'text-white/90' 
-                    : 'text-muted-foreground'
-                }`}>
-                  {heroContent[1]}
-                </p>
-              )}
-              <button className={`px-8 py-3 rounded-lg font-semibold transition-all hover:scale-105 ${
-                section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal')
-                  ? 'bg-white text-teal-dark hover:bg-white/90'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-              }`}>
-                Get Started
-              </button>
-            </div>
-          </section>
+           >
+             <div className="max-w-4xl mx-auto">
+               {section.textElements && section.textElements.length > 0 ? (
+                 section.textElements.map((textEl, index) => (
+                   <div
+                     key={textEl.id}
+                     className={`mb-4 ${textEl.fontSize} ${textEl.fontFamily} ${
+                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                         ? 'text-white' 
+                         : 'text-foreground'
+                     }`}
+                   >
+                     {textEl.content}
+                   </div>
+                 ))
+               ) : (
+                 <>
+                   <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${
+                     section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                       ? 'text-white' 
+                       : 'text-foreground'
+                   }`}>
+                     {heroContent[0] || 'Welcome'}
+                   </h1>
+                   {heroContent[1] && (
+                     <p className={`text-lg md:text-xl mb-8 ${
+                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                         ? 'text-white/90' 
+                         : 'text-muted-foreground'
+                     }`}>
+                       {heroContent[1]}
+                     </p>
+                   )}
+                 </>
+               )}
+               <button className={`px-8 py-3 rounded-lg font-semibold transition-all hover:scale-105 ${
+                 section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal')
+                   ? 'bg-white text-teal-dark hover:bg-white/90'
+                   : 'bg-primary text-primary-foreground hover:bg-primary/90'
+               }`}>
+                 Get Started
+               </button>
+             </div>
+           </section>
         );
 
       case 'about':
@@ -134,23 +162,88 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
             className={`py-16 px-4 ${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
+           >
+             <div className="max-w-4xl mx-auto text-center">
+               {section.textElements && section.textElements.length > 0 ? (
+                 section.textElements.map((textEl) => (
+                   <div
+                     key={textEl.id}
+                     className={`mb-4 ${textEl.fontSize} ${textEl.fontFamily} ${
+                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                         ? 'text-white' 
+                         : 'text-foreground'
+                     }`}
+                   >
+                     {textEl.content}
+                   </div>
+                 ))
+               ) : (
+                 <>
+                   <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${
+                     section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                       ? 'text-white' 
+                       : 'text-foreground'
+                   }`}>
+                     {aboutContent[0] || 'About'}
+                   </h2>
+                   {aboutContent[1] && (
+                     <p className={`text-lg ${
+                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
+                         ? 'text-white/90' 
+                         : 'text-muted-foreground'
+                     }`}>
+                       {aboutContent[1]}
+                     </p>
+                   )}
+                 </>
+               )}
+             </div>
+           </section>
+        );
+
+      case 'gallery':
+        return (
+          <section 
+            id={section.id}
+            key={section.id}
+            className={`py-16 px-4 ${sectionClasses}`}
+            style={baseStyle}
+            onClick={() => handleSectionClick(section.id)}
           >
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${
+            <div className="max-w-6xl mx-auto">
+              <h2 className={`text-3xl md:text-4xl font-bold mb-8 text-center ${
                 section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
                   ? 'text-white' 
                   : 'text-foreground'
               }`}>
-                {aboutContent[0] || 'About'}
+                Gallery
               </h2>
-              {aboutContent[1] && (
-                <p className={`text-lg ${
-                  section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                    ? 'text-white/90' 
-                    : 'text-muted-foreground'
-                }`}>
-                  {aboutContent[1]}
-                </p>
+              {section.galleryImages && section.galleryImages.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {section.galleryImages.map((image, index) => (
+                    <div 
+                      key={index} 
+                      className="aspect-square overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
+                    >
+                      <img
+                        src={image}
+                        alt={`Gallery image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div 
+                      key={i} 
+                      className="aspect-square bg-muted rounded-lg flex items-center justify-center"
+                    >
+                      <span className="text-muted-foreground">Image {i}</span>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </section>
@@ -187,8 +280,8 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
       <div className="min-h-full">
         {sections
           .sort((a, b) => {
-            const order = { navbar: 0, hero: 1, about: 2, footer: 3 };
-            return order[a.type] - order[b.type];
+            const order = { navbar: 0, hero: 1, about: 2, gallery: 3, footer: 4 };
+            return (order[a.type] || 99) - (order[b.type] || 99);
           })
           .map(renderSection)}
       </div>

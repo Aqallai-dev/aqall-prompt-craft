@@ -45,6 +45,11 @@ const translations = {
     about_nav: "About",
     services: "Services", 
     contact: "Contact",
+    testimonials: "Testimonials",
+    team: "Team", 
+    pricing: "Pricing",
+    features: "Features",
+    blog: "Blog",
     
     // Typography
     typography: "Typography",
@@ -108,6 +113,11 @@ const translations = {
     about_nav: "نبذة عنا", 
     services: "الخدمات",
     contact: "اتصل بنا",
+    testimonials: "الشهادات",
+    team: "الفريق",
+    pricing: "الأسعار", 
+    features: "المميزات",
+    blog: "المدونة",
     
     // Typography
     typography: "الطباعة",

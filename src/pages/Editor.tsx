@@ -21,7 +21,7 @@ export interface TextElement {
 
 export interface SectionData {
   id: string;
-  type: 'navbar' | 'hero' | 'about' | 'footer' | 'gallery';
+  type: 'navbar' | 'hero' | 'about' | 'footer' | 'gallery' | 'services' | 'testimonials' | 'contact' | 'team' | 'pricing' | 'features' | 'blog';
   content: string; // Keep for backward compatibility
   textElements?: TextElement[];
   backgroundColor: string;
@@ -145,6 +145,20 @@ const Editor = () => {
     setSections(prev => prev.filter(section => section.id !== id));
   };
 
+  const moveSection = (id: string, direction: 'up' | 'down') => {
+    setSections(prev => {
+      const index = prev.findIndex(section => section.id === id);
+      if (index === -1) return prev;
+      
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+      if (newIndex < 0 || newIndex >= prev.length) return prev;
+      
+      const newSections = [...prev];
+      [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
+      return newSections;
+    });
+  };
+
   const handleSectionClick = (sectionId: string) => {
     setSelectedSection(sectionId);
   };
@@ -190,32 +204,36 @@ const Editor = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-140px)]">
           {/* Left Panel - Section Controls */}
           <div className="space-y-6 overflow-y-auto">
-            <div className="flex items-center gap-2">
-              <Settings className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-semibold">{t('customizeSections')}</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-semibold">{t('customizeSections')}</h2>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Select onValueChange={addSection}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder={t('addSection')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hero">Hero</SelectItem>
+                    <SelectItem value="about">About</SelectItem>
+                    <SelectItem value="services">Services</SelectItem>
+                    <SelectItem value="testimonials">Testimonials</SelectItem>
+                    <SelectItem value="contact">Contact</SelectItem>
+                    <SelectItem value="gallery">Gallery</SelectItem>
+                    <SelectItem value="team">Team</SelectItem>
+                    <SelectItem value="pricing">Pricing</SelectItem>
+                    <SelectItem value="features">Features</SelectItem>
+                    <SelectItem value="blog">Blog</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-semibold">{t('customizeSections')}</h2>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Select onValueChange={addSection}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder={t('addSection')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="about">About</SelectItem>
-                      <SelectItem value="gallery">Gallery</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
 
-              {sections.map((section) => (
+              {sections.map((section, index) => (
                 <SectionEditor
                   key={section.id}
                   section={section}
@@ -223,6 +241,8 @@ const Editor = () => {
                   onUpdate={(updates) => updateSection(section.id, updates)}
                   onSelect={() => handleSectionClick(section.id)}
                   onRemove={() => removeSection(section.id)}
+                  onMoveUp={index > 0 ? () => moveSection(section.id, 'up') : undefined}
+                  onMoveDown={index < sections.length - 1 ? () => moveSection(section.id, 'down') : undefined}
                   availableSections={sections}
                 />
               ))}

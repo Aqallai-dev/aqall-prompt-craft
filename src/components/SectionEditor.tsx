@@ -21,7 +21,9 @@ import {
   FileText, 
   CreditCard,
   Link,
-  Image as ImageIcon
+  Image as ImageIcon,
+  ChevronUp,
+  ChevronDown
 } from "lucide-react";
 
 interface SectionEditorProps {
@@ -30,6 +32,8 @@ interface SectionEditorProps {
   onUpdate: (updates: Partial<SectionData>) => void;
   onSelect?: () => void;
   onRemove?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   availableSections?: SectionData[];
 }
 
@@ -39,6 +43,13 @@ const sectionIcons = {
   about: FileText,
   footer: CreditCard,
   gallery: ImageIcon,
+  services: FileText,
+  testimonials: Star,
+  contact: Navigation,
+  team: FileText,
+  pricing: CreditCard,
+  features: Star,
+  blog: FileText,
 };
 
 const sectionColors = {
@@ -47,6 +58,13 @@ const sectionColors = {
   about: "bg-green-500",
   footer: "bg-orange-500",
   gallery: "bg-pink-500",
+  services: "bg-indigo-500",
+  testimonials: "bg-yellow-500",
+  contact: "bg-red-500",
+  team: "bg-cyan-500",
+  pricing: "bg-emerald-500",
+  features: "bg-violet-500",
+  blog: "bg-rose-500",
 };
 
 export const SectionEditor = ({ 
@@ -55,6 +73,8 @@ export const SectionEditor = ({
   onUpdate, 
   onSelect, 
   onRemove,
+  onMoveUp,
+  onMoveDown,
   availableSections = [] 
 }: SectionEditorProps) => {
   const [isExpanded, setIsExpanded] = useState(isSelected);
@@ -110,13 +130,39 @@ export const SectionEditor = ({
               <Icon className="w-4 h-4" />
             </div>
             <div>
-              <span className="capitalize font-semibold">{t(section.type)}</span>
+              <span className="capitalize font-semibold">{t(section.type as any)}</span>
               <Badge variant="outline" className="ml-2 text-xs">
                 {section.backgroundColor === 'transparent' ? t('noBackground') : t('customBackground')}
               </Badge>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {onMoveUp && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveUp();
+                }}
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ChevronUp className="w-4 h-4" />
+              </Button>
+            )}
+            {onMoveDown && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveDown();
+                }}
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            )}
             {onRemove && section.type !== 'navbar' && section.type !== 'hero' && section.type !== 'footer' && (
               <Button
                 onClick={(e) => {
@@ -229,9 +275,9 @@ export const SectionEditor = ({
                     </SelectTrigger>
                     <SelectContent>
                       {availableSections.map((sect) => (
-                        <SelectItem key={sect.id} value={sect.id}>
-                          {t(sect.type)}
-                        </SelectItem>
+                         <SelectItem key={sect.id} value={sect.id}>
+                           {t(sect.type as any)}
+                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

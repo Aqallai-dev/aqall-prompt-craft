@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Sparkles, Wand2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Sparkles, Wand2, LogIn, UserPlus, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 const Landing = () => {
@@ -13,10 +14,16 @@ const Landing = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
+  const { user, signOut } = useAuth();
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       toast.error(t('enterPrompt'));
+      return;
+    }
+
+    if (!user) {
+      navigate('/auth');
       return;
     }
 
@@ -30,13 +37,52 @@ const Landing = () => {
     }, 2000);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out successfully");
+  };
+
   return (
     <div 
       className={`min-h-screen bg-gradient-to-br from-teal-dark via-teal-medium to-primary ${isRTL ? 'rtl' : 'ltr'}`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-3">
+        {user ? (
+          <div className="flex items-center gap-3">
+            <span className="text-white/80 text-sm">Welcome back!</span>
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => navigate('/auth')}
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Sign In
+            </Button>
+            <Button
+              onClick={() => navigate('/auth')}
+              size="sm"
+              className="bg-white text-teal-dark hover:bg-white/90"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Sign Up
+            </Button>
+          </div>
+        )}
         <LanguageToggle />
       </div>
 
@@ -44,25 +90,25 @@ const Landing = () => {
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-2xl space-y-8">
           {/* Logo and Title */}
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-6">
             <div className="flex items-center justify-center gap-4">
               <img 
                 src="/lovable-uploads/b91e7563-c609-4c2c-a09d-1e7971e4c8e9.png" 
                 alt="Aqall AI" 
-                className="w-16 h-16 drop-shadow-lg"
+                className="w-20 h-20 object-contain drop-shadow-lg"
               />
               <div className="text-white">
-                <h1 className="text-4xl md:text-5xl font-bold">{t('landingTitle')}</h1>
-                <p className="text-xl text-white/80">{t('landingSubtitle')}</p>
+                <h1 className="text-4xl md:text-5xl font-bold">Aqall AI</h1>
+                <p className="text-lg text-white/80">AI Website Builder</p>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <h2 className="text-3xl md:text-4xl font-bold text-white">
-                {t('landingHeading')}
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-semibold text-white">
+                Create Beautiful Websites with AI
               </h2>
-              <p className="text-lg text-white/90 max-w-lg mx-auto">
-                {t('landingDescription')}
+              <p className="text-base text-white/90 max-w-md mx-auto">
+                Simply describe your vision and watch as AI brings your website to life in seconds.
               </p>
             </div>
           </div>
@@ -74,12 +120,12 @@ const Landing = () => {
                 <div className="flex items-center gap-3 text-white">
                   <Sparkles className="w-6 h-6" />
                   <h3 className="text-xl font-semibold">
-                    {t('landingHeading')}
+                    Describe Your Website
                   </h3>
                 </div>
                 
                 <Textarea
-                  placeholder={t('promptPlaceholder')}
+                  placeholder="Describe your website idea... (e.g., 'A modern portfolio website for a photographer with gallery and contact form')"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   className="min-h-[120px] resize-none bg-white/90 border-white/30 text-foreground placeholder:text-muted-foreground"

@@ -46,6 +46,11 @@ const translations = {
     services: "Services", 
     contact: "Contact",
     
+    // Typography
+    typography: "Typography",
+    fontSize: "Font Size", 
+    fontFamily: "Font Family",
+    
     // Messages
     websiteGenerated: "Website generated successfully!",
     enterPrompt: "Please enter a prompt to generate your website",
@@ -93,6 +98,11 @@ const translations = {
     about_nav: "نبذة عنا", 
     services: "الخدمات",
     contact: "اتصل بنا",
+    
+    // Typography
+    typography: "الطباعة",
+    fontSize: "حجم الخط",
+    fontFamily: "نوع الخط",
     
     // Messages
     websiteGenerated: "تم إنشاء الموقع بنجاح!",

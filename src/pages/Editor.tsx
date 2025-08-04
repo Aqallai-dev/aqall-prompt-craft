@@ -18,6 +18,8 @@ export interface SectionData {
   backgroundImage?: string;
   logo?: string;
   scrollTargets?: { [key: string]: string }; // For navbar links
+  fontSize?: string;
+  fontFamily?: string;
 }
 
 const Editor = () => {
@@ -60,7 +62,7 @@ const Editor = () => {
 
   useEffect(() => {
     const prompt = location.state?.prompt;
-    if (prompt) {
+    if (prompt && !location.state?.processed) {
       // Generate content based on prompt
       const newSections = sections.map(section => {
         switch (section.type) {
@@ -88,8 +90,13 @@ const Editor = () => {
       
       setSections(newSections);
       toast.success(t('websiteGenerated'));
+      
+      // Mark as processed to prevent re-triggering
+      if (location.state) {
+        location.state.processed = true;
+      }
     }
-  }, [location.state, t]);
+  }, [location.state?.prompt, t]);
 
   const updateSection = (id: string, updates: Partial<SectionData>) => {
     setSections(prev => prev.map(section => 

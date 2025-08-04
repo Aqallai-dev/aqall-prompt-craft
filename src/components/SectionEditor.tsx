@@ -179,6 +179,55 @@ export const SectionEditor = ({
             </div>
           )}
 
+          {/* Font Controls */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              {t('typography')}
+            </Label>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('fontSize')}</Label>
+                <Select
+                  value={section.fontSize || 'text-base'}
+                  onValueChange={(value) => onUpdate({ fontSize: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="text-xs">XS</SelectItem>
+                    <SelectItem value="text-sm">SM</SelectItem>
+                    <SelectItem value="text-base">Base</SelectItem>
+                    <SelectItem value="text-lg">LG</SelectItem>
+                    <SelectItem value="text-xl">XL</SelectItem>
+                    <SelectItem value="text-2xl">2XL</SelectItem>
+                    <SelectItem value="text-3xl">3XL</SelectItem>
+                    <SelectItem value="text-4xl">4XL</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-xs text-muted-foreground">{t('fontFamily')}</Label>
+                <Select
+                  value={section.fontFamily || 'font-sans'}
+                  onValueChange={(value) => onUpdate({ fontFamily: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="font-sans">Sans</SelectItem>
+                    <SelectItem value="font-serif">Serif</SelectItem>
+                    <SelectItem value="font-mono">Mono</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
           {/* Background Image Uploader */}
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-2">

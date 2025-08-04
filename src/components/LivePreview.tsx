@@ -29,7 +29,7 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
     const isSelected = selectedSection === section.id;
     const sectionClasses = `cursor-pointer transition-all duration-200 ${
       isSelected ? 'ring-4 ring-primary ring-opacity-50' : 'hover:ring-2 hover:ring-primary/30'
-    }`;
+    } ${section.fontSize || 'text-base'} ${section.fontFamily || 'font-sans'}`;
 
     switch (section.type) {
       case 'navbar':

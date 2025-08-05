@@ -6,8 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, Wand2, LogIn, UserPlus, LogOut } from "lucide-react";
+import { Sparkles, Wand2, LogIn, UserPlus, LogOut, ArrowRight, Zap, Palette, Smartphone, Phone, Mail, MapPin, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { OpenAIService } from "@/integrations/openai";
 
 const Landing = () => {
   const [prompt, setPrompt] = useState("");
@@ -28,13 +29,58 @@ const Landing = () => {
     }
 
     setIsGenerating(true);
-    toast.success(t('generatingWebsite'));
+    toast.success("Generating your website with AI...");
 
-    // Simulate AI generation
-    setTimeout(() => {
-      // Pass the prompt to the editor page
-      navigate('/editor', { state: { prompt } });
-    }, 2000);
+    try {
+      console.log("Starting AI generation with prompt:", prompt);
+      
+      // Generate website content using OpenAI
+      const generatedWebsite = await OpenAIService.generateWebsite(prompt);
+      
+      console.log("Generated website data:", generatedWebsite);
+      
+      // Convert the generated sections to the format expected by the editor
+      const sections = generatedWebsite.sections.map((section, index) => ({
+        id: section.type,
+        type: section.type,
+        content: section.content,
+        textElements: section.textElements,
+        backgroundColor: section.type === 'hero' ? 'hsl(var(--teal-dark))' : 
+                       section.type === 'footer' ? 'hsl(var(--teal-medium))' : 
+                       'hsl(var(--background))',
+        companyName: section.companyName,
+        slogan: section.slogan,
+        scrollTargets: section.type === 'navbar' ? {
+          'Home': 'hero',
+          'About': 'about',
+          'Services': 'services',
+          'Contact': 'footer'
+        } : undefined
+      }));
+
+      console.log("Converted sections:", sections);
+
+      // Navigate to editor with generated content
+      navigate('/editor', { 
+        state: { 
+          prompt,
+          generatedSections: sections,
+          companyName: generatedWebsite.companyName,
+          slogan: generatedWebsite.slogan,
+          processed: false // Set to false so it gets processed
+        } 
+      });
+      
+      toast.success("Website generated successfully!");
+    } catch (error) {
+      console.error('Failed to generate website:', error);
+      toast.error("Failed to generate website. Please try again.");
+      
+      // Fallback: navigate with just the prompt
+      navigate('/editor', { state: { prompt, processed: false } });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -44,42 +90,42 @@ const Landing = () => {
 
   return (
     <div 
-      className={`min-h-screen bg-gradient-to-br from-teal-dark via-teal-medium to-primary ${isRTL ? 'rtl' : 'ltr'}`}
+      className={`min-h-screen bg-gradient-to-br from-slate-900 via-[#384f51] to-slate-900 ${isRTL ? 'rtl' : 'ltr'}`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}
-      <div className="absolute top-4 right-4 flex items-center gap-3">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2 md:gap-4 z-10">
         {user ? (
-          <div className="flex items-center gap-3">
-            <span className="text-white/80 text-sm">Welcome back!</span>
+          <div className="flex items-center gap-2 md:gap-3">
+            <span className="text-white/90 text-xs md:text-sm font-medium hidden sm:block">Welcome back!</span>
             <Button
               onClick={handleSignOut}
               variant="outline"
               size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-2 md:px-3"
             >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
+              <LogOut className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Sign Out</span>
             </Button>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 md:gap-3">
             <Button
               onClick={() => navigate('/auth')}
               variant="outline"
               size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-2 md:px-3"
             >
-              <LogIn className="w-4 h-4 mr-2" />
-              Sign In
+              <LogIn className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Sign In</span>
             </Button>
             <Button
               onClick={() => navigate('/auth')}
               size="sm"
-              className="bg-white text-teal-dark hover:bg-white/90"
+              className="bg-white text-[#384f51] hover:bg-white/90 font-medium text-xs md:text-sm px-2 md:px-3"
             >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Sign Up
+              <UserPlus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Sign Up</span>
             </Button>
           </div>
         )}
@@ -87,65 +133,84 @@ const Landing = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-2xl space-y-8">
-          {/* Logo and Title */}
-          <div className="text-center space-y-6">
-            <div className="flex items-center justify-center gap-4">
-              <img 
-                src="/lovable-uploads/b91e7563-c609-4c2c-a09d-1e7971e4c8e9.png" 
-                alt="Aqall AI" 
-                className="w-20 h-20 object-contain drop-shadow-lg"
-              />
+      <div className="flex items-center justify-center min-h-screen px-4 md:px-6 py-8 md:py-12 pt-20 md:pt-8">
+        <div className="w-full max-w-4xl space-y-8 md:space-y-12">
+          {/* Hero Section */}
+          <div className="text-center space-y-6 md:space-y-8">
+            {/* Logo and Brand */}
+            <div className="flex items-center justify-center gap-4 md:gap-6 mb-6 md:mb-8">
+              <div className="relative">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[#384f51] to-teal-500 rounded-full p-1 shadow-2xl">
+                  <img 
+                    src="/lovable-uploads/b91e7563-c609-4c2c-a09d-1e7971e4c8e9.png" 
+                    alt="Aqall AI" 
+                    className="w-full h-full object-contain rounded-full"
+                  />
+                </div>
+                <div className="absolute -inset-3 bg-gradient-to-r from-[#384f51]/30 to-teal-500/30 rounded-full blur-xl animate-pulse"></div>
+              </div>
               <div className="text-white">
-                <h1 className="text-4xl md:text-5xl font-bold">Aqall AI</h1>
-                <p className="text-lg text-white/80">AI Website Builder</p>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-teal-100 to-teal-200 bg-clip-text text-transparent drop-shadow-lg">
+                  Aqall AI
+                </h1>
+                <p className="text-sm md:text-lg text-teal-200 font-medium mt-1">AI-Powered Website Builder</p>
               </div>
             </div>
             
-            <div className="space-y-3">
-              <h2 className="text-2xl md:text-3xl font-semibold text-white">
-                Create Beautiful Websites with AI
+            {/* Main Headline */}
+            <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto px-4">
+              <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                Create Beautiful Websites
+                <span className="block text-transparent bg-gradient-to-r from-teal-300 to-teal-100 bg-clip-text">with AI Magic</span>
               </h2>
-              <p className="text-base text-white/90 max-w-md mx-auto">
-                Simply describe your vision and watch as AI brings your website to life in seconds.
+              <p className="text-base md:text-xl text-teal-100/90 leading-relaxed max-w-2xl mx-auto">
+                Simply describe your vision and watch as AI transforms your ideas into stunning, 
+                professional websites in seconds.
               </p>
             </div>
           </div>
 
-          {/* Prompt Input Card */}
-          <Card className="backdrop-blur-sm bg-white/10 border-white/20">
-            <CardContent className="p-8">
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 text-white">
-                  <Sparkles className="w-6 h-6" />
-                  <h3 className="text-xl font-semibold">
-                    Describe Your Website
-                  </h3>
+          {/* Main Action Card */}
+          <Card className="backdrop-blur-xl bg-white/5 border-white/10 shadow-2xl mx-4 md:mx-0">
+            <CardContent className="p-6 md:p-8 lg:p-10">
+              <div className="space-y-6 md:space-y-8">
+                <div className="flex items-center gap-3 md:gap-4 text-white">
+                  <div className="p-2 md:p-3 bg-gradient-to-r from-[#384f51] to-teal-500 rounded-xl">
+                    <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg md:text-2xl font-bold">
+                      Describe Your Vision
+                    </h3>
+                    <p className="text-teal-200/80 text-xs md:text-sm">
+                      Tell us what you want to create
+                    </p>
+                  </div>
                 </div>
                 
                 <Textarea
                   placeholder="Describe your website idea... (e.g., 'A modern portfolio website for a photographer with gallery and contact form')"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[120px] resize-none bg-white/90 border-white/30 text-foreground placeholder:text-muted-foreground"
+                  className="min-h-[100px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"
                 />
                 
                 <Button 
                   onClick={handleGenerate}
                   disabled={isGenerating}
-                  className="w-full bg-white text-teal-dark hover:bg-white/90 font-semibold py-6 text-lg"
+                  className="w-full bg-gradient-to-r from-[#384f51] to-teal-600 hover:from-[#2d3f41] hover:to-teal-700 text-white font-bold py-4 md:py-6 text-base md:text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
                   size="lg"
                 >
                   {isGenerating ? (
                     <>
-                      <Wand2 className="w-5 h-5 mr-3 animate-spin" />
-                      {t('generating')}
+                      <Wand2 className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 animate-spin" />
+                      Creating Your Website...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5 mr-3" />
-                      {t('generateButton')}
+                      <Sparkles className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
+                      Generate Website
+                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2 md:ml-3" />
                     </>
                   )}
                 </Button>
@@ -153,19 +218,107 @@ const Landing = () => {
             </CardContent>
           </Card>
 
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            {['AI-Powered', 'Real-time Preview', 'Easy Customization'].map((feature, index) => (
-              <div key={index} className="text-white/80">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Sparkles className="w-6 h-6" />
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mt-12 md:mt-16 px-4 md:px-0">
+            {[
+              {
+                icon: Zap,
+                title: "Lightning Fast",
+                description: "Generate complete websites in seconds with our advanced AI technology"
+              },
+              {
+                icon: Palette,
+                title: "Beautiful Design",
+                description: "Every website comes with stunning, modern design that looks professional"
+              },
+              {
+                icon: Smartphone,
+                title: "Responsive",
+                description: "All websites are fully responsive and work perfectly on all devices"
+              }
+            ].map((feature, index) => (
+              <div key={index} className="text-center group">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-[#384f51]/20 to-teal-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <feature.icon className="w-6 h-6 md:w-8 md:h-8 text-teal-300" />
                 </div>
-                <p className="font-medium">{feature}</p>
+                <h3 className="text-lg md:text-xl font-bold text-white mb-2">{feature.title}</h3>
+                <p className="text-sm md:text-base text-teal-200/80 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-black/20 backdrop-blur-sm border-t border-white/10 mt-20">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Company Info */}
+            <div className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                <div className="relative">
+                  <div className="w-8 h-8 bg-gradient-to-br from-[#384f51] to-teal-500 rounded-full p-1 shadow-lg">
+                    <img 
+                      src="/lovable-uploads/b91e7563-c609-4c2c-a09d-1e7971e4c8e9.png" 
+                      alt="Aqall AI" 
+                      className="w-full h-full object-contain rounded-full"
+                    />
+                  </div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#384f51]/20 to-teal-500/20 rounded-full blur-sm"></div>
+                </div>
+                <h3 className="text-xl font-bold text-white">Aqall AI</h3>
+              </div>
+              <p className="text-teal-200/80 text-sm">
+                Transforming ideas into stunning websites with the power of AI.
+              </p>
+            </div>
+
+            {/* Contact Info */}
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-white mb-4">Contact Us</h4>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-teal-200/90">
+                  <Phone className="w-4 h-4 text-teal-300" />
+                  <span className="text-sm">+966 55 842 6221</span>
+                </div>
+                <div className="flex items-center gap-3 text-teal-200/90">
+                  <Mail className="w-4 h-4 text-teal-300" />
+                  <span className="text-sm">moonyyosuf2004@gmail.com</span>
+                </div>
+                <div className="flex items-center gap-3 text-teal-200/90">
+                  <MapPin className="w-4 h-4 text-teal-300" />
+                  <span className="text-sm">Manchester, United Kingdom</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media */}
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-white mb-4">Follow Us</h4>
+              <div className="space-y-3">
+                <a 
+                  href="https://www.tiktok.com/@aqall.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-teal-200/90 hover:text-teal-200 transition-colors"
+                >
+                  <svg className="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.11V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-.88-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                  </svg>
+                  <span className="text-sm">@aqall.ai</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-white/10 mt-8 pt-6 text-center">
+            <p className="text-teal-200/60 text-sm">
+              © 2024 Aqall AI. All rights reserved. | Manchester, United Kingdom
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

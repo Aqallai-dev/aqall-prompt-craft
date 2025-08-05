@@ -8,7 +8,7 @@ import { SectionEditor } from "@/components/SectionEditor";
 import { LivePreview } from "@/components/LivePreview";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/useLanguage";
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft, Settings, Maximize2, ExternalLink, Eye, Edit3, Plus, Trash2, MoveUp, MoveDown } from "lucide-react";
 import { toast } from "sonner";
 
 export interface TextElement {
@@ -40,6 +40,7 @@ const Editor = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<'split' | 'fullscreen' | 'newWindow'>('split');
   const [sections, setSections] = useState<SectionData[]>([
     {
       id: 'navbar',
@@ -85,41 +86,62 @@ const Editor = () => {
 
   useEffect(() => {
     const prompt = location.state?.prompt;
+    const generatedSections = location.state?.generatedSections;
+    const companyName = location.state?.companyName;
+    const slogan = location.state?.slogan;
+    
+    console.log("Editor received state:", {
+      prompt,
+      generatedSections,
+      companyName,
+      slogan,
+      processed: location.state?.processed
+    });
+    
     if (prompt && !location.state?.processed) {
-      // Generate content based on prompt
-      const newSections = sections.map(section => {
-        switch (section.type) {
-          case 'navbar':
-            return { 
-              ...section, 
-              content: `${prompt} | ${t('home')} | ${t('about_nav')} | ${t('services')} | ${t('contact')}` 
-            };
-          case 'hero':
-            return { 
-              ...section, 
-              content: `${prompt} | Transform your vision into reality with our cutting-edge solutions` 
-            };
-          case 'about':
-            return { 
-              ...section, 
-              content: `${t('about')} ${prompt} | We specialize in bringing innovative ideas to life through technology and creativity.` 
-            };
-          case 'footer':
-            return { ...section, content: `© 2024 ${prompt}. Powered by Aqall AI.` };
-          default:
-            return section;
-        }
-      });
-      
-      setSections(newSections);
-      toast.success(t('websiteGenerated'));
+      if (generatedSections && generatedSections.length > 0) {
+        // Use AI-generated sections
+        console.log("Setting AI-generated sections:", generatedSections);
+        setSections(generatedSections);
+        toast.success("AI-generated website loaded successfully!");
+      } else {
+        // Generate content based on prompt (fallback)
+        console.log("Using fallback content generation");
+        const newSections = sections.map(section => {
+          switch (section.type) {
+            case 'navbar':
+              return { 
+                ...section, 
+                content: `${prompt} | ${t('home')} | ${t('about_nav')} | ${t('services')} | ${t('contact')}`,
+                companyName: companyName || prompt
+              };
+            case 'hero':
+              return { 
+                ...section, 
+                content: `${prompt} | Transform your vision into reality with our cutting-edge solutions` 
+              };
+            case 'about':
+              return { 
+                ...section, 
+                content: `${t('about')} ${prompt} | We specialize in bringing innovative ideas to life through technology and creativity.` 
+              };
+            case 'footer':
+              return { ...section, content: `© 2024 ${prompt}. Powered by Aqall AI.` };
+            default:
+              return section;
+          }
+        });
+        
+        setSections(newSections);
+        toast.success(t('websiteGenerated'));
+      }
       
       // Mark as processed to prevent re-triggering
       if (location.state) {
         location.state.processed = true;
       }
     }
-  }, [location.state?.prompt, t]);
+  }, [location.state?.prompt, location.state?.generatedSections, t]);
 
   const updateSection = (id: string, updates: Partial<SectionData>) => {
     setSections(prev => prev.map(section => 
@@ -139,10 +161,12 @@ const Editor = () => {
       ...(type === 'gallery' && { galleryImages: [] })
     };
     setSections(prev => [...prev, newSection]);
+    toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} section added`);
   };
 
   const removeSection = (id: string) => {
     setSections(prev => prev.filter(section => section.id !== id));
+    toast.success("Section removed");
   };
 
   const moveSection = (id: string, direction: 'up' | 'down') => {
@@ -163,6 +187,275 @@ const Editor = () => {
     setSelectedSection(sectionId);
   };
 
+  const openPreviewInNewWindow = () => {
+    const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+    if (previewWindow) {
+      previewWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Website Preview - Aqall AI</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <script src="https://cdn.tailwindcss.com"></script>
+          <style>
+            body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+          </style>
+        </head>
+        <body>
+          <div id="preview-content"></div>
+          <script>
+            // This would need to be implemented to render the sections
+            document.getElementById('preview-content').innerHTML = 'Preview content would be rendered here';
+          </script>
+        </body>
+        </html>
+      `);
+    }
+  };
+
+  const renderContent = () => {
+    if (previewMode === 'fullscreen') {
+      return (
+        <div className="fixed inset-0 z-50 bg-white">
+          <div className="flex items-center justify-between p-3 md:p-4 border-b bg-card">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="relative">
+                <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-[#384f51] to-teal-500 rounded-full p-1 shadow-lg">
+                  <img 
+                    src="/lovable-uploads/b91e7563-c609-4c2c-a09d-1e7971e4c8e9.png" 
+                    alt="Aqall AI" 
+                    className="w-full h-full object-contain rounded-full"
+                  />
+                </div>
+              </div>
+              <h2 className="text-base md:text-lg font-semibold">Full Preview Mode</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPreviewMode('split')}
+                className="text-xs md:text-sm"
+              >
+                <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Exit Fullscreen</span>
+              </Button>
+            </div>
+          </div>
+          <div className="h-full overflow-y-auto">
+            <LivePreview
+              sections={sections} 
+              onSectionClick={handleSectionClick}
+              selectedSection={selectedSection}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 h-[calc(100vh-140px)]">
+        {/* Left Panel - Section Controls */}
+        <div className="space-y-4 md:space-y-6 overflow-y-auto">
+          {/* Header Section */}
+          <div className="bg-card rounded-lg border p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 mb-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                  <Edit3 className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base md:text-lg font-semibold">Website Sections</h2>
+                  <p className="text-xs md:text-sm text-muted-foreground">Manage and customize your website</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Select onValueChange={addSection}>
+                  <SelectTrigger className="w-full md:w-44 text-xs md:text-sm">
+                    <SelectValue placeholder="Add New Section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hero">Hero Section</SelectItem>
+                    <SelectItem value="about">About Section</SelectItem>
+                    <SelectItem value="services">Services Section</SelectItem>
+                    <SelectItem value="testimonials">Testimonials</SelectItem>
+                    <SelectItem value="contact">Contact Section</SelectItem>
+                    <SelectItem value="gallery">Gallery Section</SelectItem>
+                    <SelectItem value="team">Team Section</SelectItem>
+                    <SelectItem value="pricing">Pricing Section</SelectItem>
+                    <SelectItem value="features">Features Section</SelectItem>
+                    <SelectItem value="blog">Blog Section</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="text-xs text-muted-foreground bg-muted/50 p-2 md:p-3 rounded-md">
+              <strong>Tip:</strong> Click on any section to edit its content and styling
+            </div>
+          </div>
+
+          {/* Sections List */}
+          <div className="space-y-2 md:space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                Current Sections ({sections.length})
+              </h3>
+            </div>
+            
+            {sections.map((section, index) => (
+              <Card 
+                key={section.id} 
+                className={`cursor-pointer transition-all duration-200 ${
+                  selectedSection === section.id 
+                    ? 'ring-2 ring-primary bg-primary/5 border-primary/20' 
+                    : 'hover:bg-muted/50 hover:border-muted-foreground/20'
+                }`}
+                onClick={() => handleSectionClick(section.id)}
+              >
+                <CardContent className="p-3 md:p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                      <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full flex-shrink-0 ${
+                        selectedSection === section.id ? 'bg-primary' : 'bg-muted-foreground/30'
+                      }`}></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 md:gap-2 mb-1">
+                          <h3 className="font-medium capitalize text-xs md:text-sm truncate">{section.type}</h3>
+                          <span className="text-xs text-muted-foreground bg-muted px-1.5 md:px-2 py-0.5 rounded flex-shrink-0">
+                            {index + 1}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {section.content.split(' | ')[0] || 'Click to edit content'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0">
+                      {index > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveSection(section.id, 'up');
+                          }}
+                          className="h-7 w-7 md:h-8 md:w-8 p-0"
+                        >
+                          <MoveUp className="w-3 h-3" />
+                        </Button>
+                      )}
+                      {index < sections.length - 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveSection(section.id, 'down');
+                          }}
+                          className="h-7 w-7 md:h-8 md:w-8 p-0"
+                        >
+                          <MoveDown className="w-3 h-3" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeSection(section.id);
+                        }}
+                        className="h-7 w-7 md:h-8 md:w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Section Editor */}
+          {selectedSection && (
+            <div className="bg-card rounded-lg border p-4 md:p-6">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
+                <div className="p-1 md:p-1.5 bg-primary/10 rounded">
+                  <Settings className="w-3 h-3 md:w-4 md:h-4 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm md:text-base">Edit Section</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Customize content, styling, and layout
+                  </p>
+                </div>
+              </div>
+              
+              <SectionEditor
+                section={sections.find(s => s.id === selectedSection)!}
+                isSelected={true}
+                onUpdate={(updates) => updateSection(selectedSection, updates)}
+                onSelect={() => {}}
+                onRemove={() => removeSection(selectedSection)}
+                onMoveUp={undefined}
+                onMoveDown={undefined}
+                availableSections={sections}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel - Live Preview */}
+        <div className="bg-card rounded-lg border overflow-hidden">
+          <div className="p-3 md:p-4 border-b bg-muted/30">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-0">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1 md:p-1.5 bg-primary/10 rounded">
+                  <Eye className="w-3 h-3 md:w-4 md:h-4 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm md:text-base">Live Preview</h3>
+                  <p className="text-xs text-muted-foreground">Real-time website preview</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-1 md:gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewMode('fullscreen')}
+                  className="text-xs h-8 md:h-9"
+                >
+                  <Maximize2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">Fullscreen</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openPreviewInNewWindow}
+                  className="text-xs h-8 md:h-9"
+                >
+                  <ExternalLink className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">New Window</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="h-full overflow-y-auto">
+            <LivePreview
+              sections={sections} 
+              onSectionClick={handleSectionClick}
+              selectedSection={selectedSection}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div 
       className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`}
@@ -170,27 +463,34 @@ const Editor = () => {
     >
       {/* Header */}
       <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 md:gap-2 hover:bg-muted/50 text-xs md:text-sm"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Back
+                <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Back to Home</span>
+                <span className="sm:hidden">Back</span>
               </Button>
               
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/lovable-uploads/b91e7563-c609-4c2c-a09d-1e7971e4c8e9.png" 
-                  alt="Aqall AI" 
-                  className="w-8 h-8"
-                />
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="relative">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#384f51] to-teal-500 rounded-full p-1 shadow-lg">
+                    <img 
+                      src="/lovable-uploads/b91e7563-c609-4c2c-a09d-1e7971e4c8e9.png" 
+                      alt="Aqall AI" 
+                      className="w-full h-full object-contain rounded-full"
+                    />
+                  </div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#384f51]/20 to-teal-500/20 rounded-full blur-sm"></div>
+                </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">{t('editorTitle')}</h1>
+                  <h1 className="text-lg md:text-xl font-bold text-foreground">Website Editor</h1>
+                  <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">Customize your website sections</p>
                 </div>
               </div>
             </div>
@@ -201,69 +501,7 @@ const Editor = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-140px)]">
-          {/* Left Panel - Section Controls */}
-          <div className="space-y-6 overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Settings className="w-5 h-5 text-primary" />
-                <h2 className="text-lg font-semibold">{t('customizeSections')}</h2>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Select onValueChange={addSection}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder={t('addSection')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="hero">Hero</SelectItem>
-                    <SelectItem value="about">About</SelectItem>
-                    <SelectItem value="services">Services</SelectItem>
-                    <SelectItem value="testimonials">Testimonials</SelectItem>
-                    <SelectItem value="contact">Contact</SelectItem>
-                    <SelectItem value="gallery">Gallery</SelectItem>
-                    <SelectItem value="team">Team</SelectItem>
-                    <SelectItem value="pricing">Pricing</SelectItem>
-                    <SelectItem value="features">Features</SelectItem>
-                    <SelectItem value="blog">Blog</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-
-              {sections.map((section, index) => (
-                <SectionEditor
-                  key={section.id}
-                  section={section}
-                  isSelected={selectedSection === section.id}
-                  onUpdate={(updates) => updateSection(section.id, updates)}
-                  onSelect={() => handleSectionClick(section.id)}
-                  onRemove={() => removeSection(section.id)}
-                  onMoveUp={index > 0 ? () => moveSection(section.id, 'up') : undefined}
-                  onMoveDown={index < sections.length - 1 ? () => moveSection(section.id, 'down') : undefined}
-                  availableSections={sections}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Right Panel - Live Preview */}
-          <div className="bg-card rounded-lg border overflow-hidden">
-            <div className="p-3 border-b bg-muted/30">
-              <h3 className="font-semibold text-foreground text-sm">{t('livePreview')}</h3>
-              <p className="text-xs text-muted-foreground">Click on any section to edit it</p>
-            </div>
-            <div className="h-full overflow-y-auto">
-              <LivePreview
-                sections={sections} 
-                onSectionClick={handleSectionClick}
-                selectedSection={selectedSection}
-              />
-            </div>
-          </div>
-        </div>
+        {renderContent()}
       </div>
     </div>
   );

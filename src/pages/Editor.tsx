@@ -7,9 +7,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SectionEditor } from "@/components/SectionEditor";
 import { LivePreview } from "@/components/LivePreview";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { SectionTemplates } from "@/components/SectionTemplates";
 import { useLanguage } from "@/hooks/useLanguage";
-import { ArrowLeft, Settings, Maximize2, ExternalLink, Eye, Edit3, Plus, Trash2, MoveUp, MoveDown } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Settings, 
+  Maximize2, 
+  ExternalLink, 
+  Eye, 
+  Edit3, 
+  Plus, 
+  Trash2, 
+  MoveUp, 
+  MoveDown,
+  Download,
+  Palette,
+  Smartphone,
+  Monitor,
+  Layout,
+  Sparkles,
+  Save,
+  Share2,
+  Code,
+  EyeOff,
+  Grid3X3,
+  Type,
+  Image as ImageIcon,
+  Layers,
+  Zap,
+  Tablet
+} from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export interface TextElement {
   id: string;
@@ -17,13 +53,38 @@ export interface TextElement {
   fontSize: string;
   fontFamily: string;
   color?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  fontWeight?: string;
+  textDecoration?: string;
+  letterSpacing?: string;
+  lineHeight?: string;
+}
+
+export interface ButtonElement {
+  id: string;
+  text: string;
+  variant: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
+  size: 'sm' | 'md' | 'lg';
+  href?: string;
+  onClick?: string;
+}
+
+export interface FormElement {
+  id: string;
+  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox' | 'radio';
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: string[]; // For select, radio, checkbox
 }
 
 export interface SectionData {
   id: string;
-  type: 'navbar' | 'hero' | 'about' | 'footer' | 'gallery' | 'services' | 'testimonials' | 'contact' | 'team' | 'pricing' | 'features' | 'blog';
+  type: 'navbar' | 'hero' | 'about' | 'footer' | 'gallery' | 'services' | 'testimonials' | 'contact' | 'team' | 'pricing' | 'features' | 'blog' | 'cta' | 'stats' | 'faq' | 'newsletter';
   content: string; // Keep for backward compatibility
   textElements?: TextElement[];
+  buttonElements?: ButtonElement[];
+  formElements?: FormElement[];
   backgroundColor: string;
   backgroundImage?: string;
   logo?: string;
@@ -33,7 +94,76 @@ export interface SectionData {
   fontSize?: string;
   fontFamily?: string;
   galleryImages?: string[];
+  // New advanced properties
+  padding?: { top: number; bottom: number; left: number; right: number };
+  margin?: { top: number; bottom: number; left: number; right: number };
+  borderRadius?: number;
+  borderWidth?: number;
+  borderColor?: string;
+  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  opacity?: number;
+  animation?: 'none' | 'fadeIn' | 'slideUp' | 'slideDown' | 'zoomIn' | 'bounce';
+  layout?: 'stack' | 'grid' | 'flex' | 'masonry';
+  columns?: number;
+  gap?: number;
+  alignment?: 'left' | 'center' | 'right' | 'justify';
+  maxWidth?: string;
+  minHeight?: string;
+  responsive?: {
+    mobile?: Partial<SectionData>;
+    tablet?: Partial<SectionData>;
+    desktop?: Partial<SectionData>;
+  };
 }
+
+// Pre-built section templates
+const sectionTemplates = {
+  hero: {
+    modern: {
+      textElements: [
+        { id: '1', content: 'Transform Your Business', fontSize: 'text-5xl', fontFamily: 'font-bold', textAlign: 'center' },
+        { id: '2', content: 'Innovative solutions for the modern world', fontSize: 'text-xl', fontFamily: 'font-normal', textAlign: 'center' }
+      ],
+      buttonElements: [
+        { id: '1', text: 'Get Started', variant: 'primary', size: 'lg' },
+        { id: '2', text: 'Learn More', variant: 'outline', size: 'lg' }
+      ],
+      backgroundColor: 'hsl(var(--teal-dark))',
+      layout: 'stack',
+      alignment: 'center'
+    },
+    minimal: {
+      textElements: [
+        { id: '1', content: 'Simple & Clean', fontSize: 'text-4xl', fontFamily: 'font-light', textAlign: 'center' },
+        { id: '2', content: 'Less is more', fontSize: 'text-lg', fontFamily: 'font-normal', textAlign: 'center' }
+      ],
+      backgroundColor: 'transparent',
+      layout: 'stack',
+      alignment: 'center'
+    }
+  },
+  about: {
+    standard: {
+      textElements: [
+        { id: '1', content: 'About Us', fontSize: 'text-3xl', fontFamily: 'font-bold' },
+        { id: '2', content: 'We are passionate about creating innovative solutions that help businesses grow and succeed in the digital age.', fontSize: 'text-lg', fontFamily: 'font-normal' }
+      ],
+      layout: 'stack',
+      alignment: 'left'
+    }
+  },
+  services: {
+    grid: {
+      textElements: [
+        { id: '1', content: 'Our Services', fontSize: 'text-3xl', fontFamily: 'font-bold', textAlign: 'center' }
+      ],
+      layout: 'grid',
+      columns: 3,
+      gap: 4,
+      backgroundColor: 'hsl(var(--background))'
+    }
+  }
+};
 
 const Editor = () => {
   const location = useLocation();
@@ -41,6 +171,10 @@ const Editor = () => {
   const { t, isRTL } = useLanguage();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<'split' | 'fullscreen' | 'newWindow'>('split');
+  const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [showGrid, setShowGrid] = useState(false);
+  const [showAnimations, setShowAnimations] = useState(true);
+  const [activeTab, setActiveTab] = useState('sections');
   const [sections, setSections] = useState<SectionData[]>([
     {
       id: 'navbar',
@@ -61,26 +195,36 @@ const Editor = () => {
       type: 'hero',
       content: `${t('landingHeading')} | ${t('landingDescription')}`,
       textElements: [
-        { id: '1', content: t('landingHeading'), fontSize: 'text-4xl', fontFamily: 'font-bold' },
-        { id: '2', content: t('landingDescription'), fontSize: 'text-lg', fontFamily: 'font-normal' }
+        { id: '1', content: t('landingHeading'), fontSize: 'text-4xl', fontFamily: 'font-bold', textAlign: 'center' },
+        { id: '2', content: t('landingDescription'), fontSize: 'text-lg', fontFamily: 'font-normal', textAlign: 'center' }
+      ],
+      buttonElements: [
+        { id: '1', text: 'Get Started', variant: 'primary', size: 'lg' }
       ],
       backgroundColor: 'hsl(var(--teal-dark))',
+      layout: 'stack',
+      alignment: 'center',
+      padding: { top: 80, bottom: 80, left: 20, right: 20 }
     },
     {
       id: 'about',
       type: 'about',
       content: `${t('about')} | We create innovative solutions for the modern web.`,
       textElements: [
-        { id: '1', content: t('about'), fontSize: 'text-3xl', fontFamily: 'font-bold' },
-        { id: '2', content: 'We create innovative solutions for the modern web.', fontSize: 'text-lg', fontFamily: 'font-normal' }
+        { id: '1', content: t('about'), fontSize: 'text-3xl', fontFamily: 'font-bold', textAlign: 'center' },
+        { id: '2', content: 'We create innovative solutions for the modern web.', fontSize: 'text-lg', fontFamily: 'font-normal', textAlign: 'center' }
       ],
       backgroundColor: 'hsl(var(--background))',
+      layout: 'stack',
+      alignment: 'center',
+      padding: { top: 60, bottom: 60, left: 20, right: 20 }
     },
     {
       id: 'footer',
       type: 'footer',
       content: '© 2024 Your Website. Powered by Aqall AI.',
       backgroundColor: 'hsl(var(--teal-medium))',
+      padding: { top: 40, bottom: 40, left: 20, right: 20 }
     },
   ]);
 
@@ -149,7 +293,7 @@ const Editor = () => {
     ));
   };
 
-  const addSection = (type: SectionData['type']) => {
+  const addSection = (type: SectionData['type'], template?: string) => {
     const newSection: SectionData = {
       id: `${type}-${Date.now()}`,
       type,
@@ -158,8 +302,18 @@ const Editor = () => {
         { id: '1', content: `New ${type} section`, fontSize: 'text-lg', fontFamily: 'font-normal' }
       ],
       backgroundColor: 'hsl(var(--background))',
+      layout: 'stack',
+      alignment: 'center',
+      padding: { top: 40, bottom: 40, left: 20, right: 20 },
       ...(type === 'gallery' && { galleryImages: [] })
     };
+
+    // Apply template if specified
+    if (template && sectionTemplates[type]?.[template]) {
+      const templateData = sectionTemplates[type][template];
+      Object.assign(newSection, templateData);
+    }
+
     setSections(prev => [...prev, newSection]);
     toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} section added`);
   };
@@ -214,6 +368,78 @@ const Editor = () => {
     }
   };
 
+  const exportWebsite = () => {
+    const html = generateHTML();
+    const css = generateCSS();
+    
+    const blob = new Blob([`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+${css}
+    </style>
+</head>
+<body>
+${html}
+</body>
+</html>`], { type: 'text/html' });
+    
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'website.html';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success('Website exported successfully!');
+  };
+
+  const generateHTML = () => {
+    return sections.map(section => {
+      // This would generate the actual HTML for each section
+      return `<section id="${section.id}" class="${getSectionClasses(section)}">
+        <!-- Section content would be generated here -->
+      </section>`;
+    }).join('\n');
+  };
+
+  const generateCSS = () => {
+    return sections.map(section => {
+      return `#${section.id} {
+        background-color: ${section.backgroundColor};
+        ${section.backgroundImage ? `background-image: url(${section.backgroundImage});` : ''}
+        padding: ${section.padding?.top || 0}px ${section.padding?.right || 0}px ${section.padding?.bottom || 0}px ${section.padding?.left || 0}px;
+        ${section.borderRadius ? `border-radius: ${section.borderRadius}px;` : ''}
+        ${section.shadow && section.shadow !== 'none' ? `box-shadow: var(--shadow-${section.shadow});` : ''}
+      }`;
+    }).join('\n');
+  };
+
+  const getSectionClasses = (section: SectionData) => {
+    const classes = [];
+    if (section.layout) classes.push(`layout-${section.layout}`);
+    if (section.alignment) classes.push(`text-${section.alignment}`);
+    if (section.shadow && section.shadow !== 'none') classes.push(`shadow-${section.shadow}`);
+    return classes.join(' ');
+  };
+
+  const duplicateSection = (sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (section) {
+      const newSection = {
+        ...section,
+        id: `${section.type}-${Date.now()}`,
+        content: `${section.content} (Copy)`
+      };
+      setSections(prev => [...prev, newSection]);
+      toast.success('Section duplicated');
+    }
+  };
+
   const renderContent = () => {
     if (previewMode === 'fullscreen') {
       return (
@@ -248,6 +474,9 @@ const Editor = () => {
               sections={sections} 
               onSectionClick={handleSectionClick}
               selectedSection={selectedSection}
+              deviceMode={deviceMode}
+              showGrid={showGrid}
+              showAnimations={showAnimations}
             />
           </div>
         </div>
@@ -256,9 +485,9 @@ const Editor = () => {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 h-[calc(100vh-140px)]">
-        {/* Left Panel - Section Controls */}
+        {/* Left Panel - Enhanced Controls */}
         <div className="space-y-4 md:space-y-6 overflow-y-auto">
-          {/* Header Section */}
+          {/* Enhanced Header Section */}
           <div className="bg-card rounded-lg border p-4 md:p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 mb-4">
               <div className="flex items-center gap-2 md:gap-3">
@@ -266,15 +495,36 @@ const Editor = () => {
                   <Edit3 className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-base md:text-lg font-semibold">Website Sections</h2>
-                  <p className="text-xs md:text-sm text-muted-foreground">Manage and customize your website</p>
+                  <h2 className="text-base md:text-lg font-semibold">Website Builder</h2>
+                  <p className="text-xs md:text-sm text-muted-foreground">Advanced website creation tools</p>
                 </div>
               </div>
               
               <div className="flex items-center gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Templates
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Section Templates</DialogTitle>
+                      <DialogDescription>
+                        Choose from pre-built section templates to speed up your website creation.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <SectionTemplates onSelectTemplate={(template) => {
+                      setSections(prev => [...prev, template]);
+                      toast.success(`${template.type} section added from template!`);
+                    }} />
+                  </DialogContent>
+                </Dialog>
+                
                 <Select onValueChange={addSection}>
                   <SelectTrigger className="w-full md:w-44 text-xs md:text-sm">
-                    <SelectValue placeholder="Add New Section" />
+                    <SelectValue placeholder="Add Section" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="hero">Hero Section</SelectItem>
@@ -287,128 +537,248 @@ const Editor = () => {
                     <SelectItem value="pricing">Pricing Section</SelectItem>
                     <SelectItem value="features">Features Section</SelectItem>
                     <SelectItem value="blog">Blog Section</SelectItem>
+                    <SelectItem value="cta">Call to Action</SelectItem>
+                    <SelectItem value="stats">Statistics</SelectItem>
+                    <SelectItem value="faq">FAQ Section</SelectItem>
+                    <SelectItem value="newsletter">Newsletter</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             
             <div className="text-xs text-muted-foreground bg-muted/50 p-2 md:p-3 rounded-md">
-              <strong>Tip:</strong> Click on any section to edit its content and styling
+              <strong>Pro Tip:</strong> Use templates for faster website creation. Click on any section to edit its content and styling.
             </div>
           </div>
 
-          {/* Sections List */}
-          <div className="space-y-2 md:space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Current Sections ({sections.length})
-              </h3>
-            </div>
-            
-            {sections.map((section, index) => (
-              <Card 
-                key={section.id} 
-                className={`cursor-pointer transition-all duration-200 ${
-                  selectedSection === section.id 
-                    ? 'ring-2 ring-primary bg-primary/5 border-primary/20' 
-                    : 'hover:bg-muted/50 hover:border-muted-foreground/20'
-                }`}
-                onClick={() => handleSectionClick(section.id)}
-              >
-                <CardContent className="p-3 md:p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                      <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full flex-shrink-0 ${
-                        selectedSection === section.id ? 'bg-primary' : 'bg-muted-foreground/30'
-                      }`}></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1 md:gap-2 mb-1">
-                          <h3 className="font-medium capitalize text-xs md:text-sm truncate">{section.type}</h3>
-                          <span className="text-xs text-muted-foreground bg-muted px-1.5 md:px-2 py-0.5 rounded flex-shrink-0">
-                            {index + 1}
-                          </span>
+          {/* Enhanced Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="sections" className="text-xs">Sections</TabsTrigger>
+              <TabsTrigger value="styling" className="text-xs">Styling</TabsTrigger>
+              <TabsTrigger value="export" className="text-xs">Export</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="sections" className="space-y-4">
+              {/* Sections List */}
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Current Sections ({sections.length})
+                  </h3>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowGrid(!showGrid)}
+                      className={`h-7 w-7 p-0 ${showGrid ? 'bg-primary/10 text-primary' : ''}`}
+                    >
+                      <Grid3X3 className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAnimations(!showAnimations)}
+                      className={`h-7 w-7 p-0 ${showAnimations ? 'bg-primary/10 text-primary' : ''}`}
+                    >
+                      <Zap className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {sections.map((section, index) => (
+                  <Card 
+                    key={section.id} 
+                    className={`cursor-pointer transition-all duration-200 ${
+                      selectedSection === section.id 
+                        ? 'ring-2 ring-primary bg-primary/5 border-primary/20' 
+                        : 'hover:bg-muted/50 hover:border-muted-foreground/20'
+                    }`}
+                    onClick={() => handleSectionClick(section.id)}
+                  >
+                    <CardContent className="p-3 md:p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                          <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full flex-shrink-0 ${
+                            selectedSection === section.id ? 'bg-primary' : 'bg-muted-foreground/30'
+                          }`}></div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1 md:gap-2 mb-1">
+                              <h3 className="font-medium capitalize text-xs md:text-sm truncate">{section.type}</h3>
+                              <span className="text-xs text-muted-foreground bg-muted px-1.5 md:px-2 py-0.5 rounded flex-shrink-0">
+                                {index + 1}
+                              </span>
+                              {section.layout && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {section.layout}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {section.content.split(' | ')[0] || 'Click to edit content'}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {section.content.split(' | ')[0] || 'Click to edit content'}
-                        </p>
+                        
+                        <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              duplicateSection(section.id);
+                            }}
+                            className="h-7 w-7 md:h-8 md:w-8 p-0"
+                          >
+                            <Layers className="w-3 h-3" />
+                          </Button>
+                          {index > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveSection(section.id, 'up');
+                              }}
+                              className="h-7 w-7 md:h-8 md:w-8 p-0"
+                            >
+                              <MoveUp className="w-3 h-3" />
+                            </Button>
+                          )}
+                          {index < sections.length - 1 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveSection(section.id, 'down');
+                              }}
+                              className="h-7 w-7 md:h-8 md:w-8 p-0"
+                            >
+                              <MoveDown className="w-3 h-3" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSection(section.id);
+                            }}
+                            className="h-7 w-7 md:h-8 md:w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Section Editor */}
+              {selectedSection && (
+                <div className="bg-card rounded-lg border p-4 md:p-6">
+                  <div className="flex items-center gap-2 mb-3 md:mb-4">
+                    <div className="p-1 md:p-1.5 bg-primary/10 rounded">
+                      <Settings className="w-3 h-3 md:w-4 md:h-4 text-primary" />
                     </div>
-                    
-                    <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0">
-                      {index > 0 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveSection(section.id, 'up');
-                          }}
-                          className="h-7 w-7 md:h-8 md:w-8 p-0"
-                        >
-                          <MoveUp className="w-3 h-3" />
-                        </Button>
-                      )}
-                      {index < sections.length - 1 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveSection(section.id, 'down');
-                          }}
-                          className="h-7 w-7 md:h-8 md:w-8 p-0"
-                        >
-                          <MoveDown className="w-3 h-3" />
-                        </Button>
-                      )}
+                    <div>
+                      <h3 className="font-medium text-sm md:text-base">Edit Section</h3>
+                      <p className="text-xs text-muted-foreground">
+                        Customize content, styling, and layout
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <SectionEditor
+                    section={sections.find(s => s.id === selectedSection)!}
+                    isSelected={true}
+                    onUpdate={(updates) => updateSection(selectedSection, updates)}
+                    onSelect={() => {}}
+                    onRemove={() => removeSection(selectedSection)}
+                    onMoveUp={undefined}
+                    onMoveDown={undefined}
+                    availableSections={sections}
+                  />
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="styling" className="space-y-4">
+              <div className="bg-card rounded-lg border p-4">
+                <h3 className="font-medium mb-4">Global Styling</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm">Device Preview</Label>
+                    <div className="flex gap-2 mt-2">
                       <Button
-                        variant="ghost"
+                        variant={deviceMode === 'desktop' ? 'default' : 'outline'}
                         size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeSection(section.id);
-                        }}
-                        className="h-7 w-7 md:h-8 md:w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setDeviceMode('desktop')}
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Monitor className="w-4 h-4 mr-1" />
+                        Desktop
+                      </Button>
+                      <Button
+                        variant={deviceMode === 'tablet' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setDeviceMode('tablet')}
+                      >
+                        <Tablet className="w-4 h-4 mr-1" />
+                        Tablet
+                      </Button>
+                      <Button
+                        variant={deviceMode === 'mobile' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setDeviceMode('mobile')}
+                      >
+                        <Smartphone className="w-4 h-4 mr-1" />
+                        Mobile
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
 
-          {/* Section Editor */}
-          {selectedSection && (
-            <div className="bg-card rounded-lg border p-4 md:p-6">
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <div className="p-1 md:p-1.5 bg-primary/10 rounded">
-                  <Settings className="w-3 h-3 md:w-4 md:h-4 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-sm md:text-base">Edit Section</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Customize content, styling, and layout
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Show Grid</Label>
+                    <Switch checked={showGrid} onCheckedChange={setShowGrid} />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Show Animations</Label>
+                    <Switch checked={showAnimations} onCheckedChange={setShowAnimations} />
+                  </div>
                 </div>
               </div>
-              
-              <SectionEditor
-                section={sections.find(s => s.id === selectedSection)!}
-                isSelected={true}
-                onUpdate={(updates) => updateSection(selectedSection, updates)}
-                onSelect={() => {}}
-                onRemove={() => removeSection(selectedSection)}
-                onMoveUp={undefined}
-                onMoveDown={undefined}
-                availableSections={sections}
-              />
-            </div>
-          )}
+            </TabsContent>
+
+            <TabsContent value="export" className="space-y-4">
+              <div className="bg-card rounded-lg border p-4">
+                <h3 className="font-medium mb-4">Export Options</h3>
+                
+                <div className="space-y-3">
+                  <Button onClick={exportWebsite} className="w-full">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export as HTML
+                  </Button>
+                  
+                  <Button variant="outline" className="w-full">
+                    <Code className="w-4 h-4 mr-2" />
+                    Export CSS Only
+                  </Button>
+                  
+                  <Button variant="outline" className="w-full">
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share Link
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
-        {/* Right Panel - Live Preview */}
+        {/* Right Panel - Enhanced Live Preview */}
         <div className="bg-card rounded-lg border overflow-hidden">
           <div className="p-3 md:p-4 border-b bg-muted/30">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-0">
@@ -449,6 +819,9 @@ const Editor = () => {
               sections={sections} 
               onSectionClick={handleSectionClick}
               selectedSection={selectedSection}
+              deviceMode={deviceMode}
+              showGrid={showGrid}
+              showAnimations={showAnimations}
             />
           </div>
         </div>

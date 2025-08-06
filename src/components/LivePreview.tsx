@@ -4,9 +4,19 @@ interface LivePreviewProps {
   sections: SectionData[];
   onSectionClick?: (sectionId: string) => void;
   selectedSection?: string | null;
+  deviceMode?: 'desktop' | 'tablet' | 'mobile';
+  showGrid?: boolean;
+  showAnimations?: boolean;
 }
 
-export const LivePreview = ({ sections, onSectionClick, selectedSection }: LivePreviewProps) => {
+export const LivePreview = ({ 
+  sections, 
+  onSectionClick, 
+  selectedSection,
+  deviceMode = 'desktop',
+  showGrid = false,
+  showAnimations = true
+}: LivePreviewProps) => {
   const handleSectionClick = (sectionId: string) => {
     onSectionClick?.(sectionId);
   };
@@ -18,18 +28,60 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
     }
   };
 
+  const getDeviceClasses = () => {
+    switch (deviceMode) {
+      case 'mobile':
+        return 'max-w-sm mx-auto';
+      case 'tablet':
+        return 'max-w-2xl mx-auto';
+      default:
+        return 'w-full';
+    }
+  };
+
+  const getAnimationClasses = (animation?: string) => {
+    if (!showAnimations || !animation || animation === 'none') return '';
+    
+    const animationClasses = {
+      fadeIn: 'animate-fade-in',
+      slideUp: 'animate-slide-up',
+      slideDown: 'animate-slide-down',
+      zoomIn: 'animate-zoom-in',
+      bounce: 'animate-bounce'
+    };
+    
+    return animationClasses[animation as keyof typeof animationClasses] || '';
+  };
+
   const renderSection = (section: SectionData) => {
     const baseStyle = {
       backgroundColor: section.backgroundColor,
       backgroundImage: section.backgroundImage ? `url(${section.backgroundImage})` : undefined,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
+      padding: section.padding ? `${section.padding.top}px ${section.padding.right}px ${section.padding.bottom}px ${section.padding.left}px` : undefined,
+      margin: section.margin ? `${section.margin.top}px ${section.margin.right}px ${section.margin.bottom}px ${section.margin.left}px` : undefined,
+      borderRadius: section.borderRadius ? `${section.borderRadius}px` : undefined,
+      borderWidth: section.borderWidth ? `${section.borderWidth}px` : undefined,
+      borderColor: section.borderColor,
+      opacity: section.opacity,
+      maxWidth: section.maxWidth,
+      minHeight: section.minHeight,
     };
 
     const isSelected = selectedSection === section.id;
     const sectionClasses = `cursor-pointer transition-all duration-200 ${
       isSelected ? 'ring-4 ring-primary ring-opacity-50' : 'hover:ring-2 hover:ring-primary/30'
-    } ${section.fontSize || 'text-base'} ${section.fontFamily || 'font-sans'}`;
+    } ${section.fontSize || 'text-base'} ${section.fontFamily || 'font-sans'} ${
+      section.shadow && section.shadow !== 'none' ? `shadow-${section.shadow}` : ''
+    } ${getAnimationClasses(section.animation)}`;
+
+    const layoutClasses = section.layout === 'grid' ? `grid grid-cols-${section.columns || 1} gap-${section.gap || 4}` :
+                         section.layout === 'flex' ? 'flex flex-wrap gap-4' :
+                         section.layout === 'masonry' ? 'columns-2 md:columns-3 lg:columns-4 gap-4' :
+                         'space-y-4';
+
+    const alignmentClasses = section.alignment ? `text-${section.alignment}` : '';
 
     switch (section.type) {
       case 'navbar':
@@ -38,7 +90,7 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
           <nav 
             id={section.id}
             key={section.id}
-            className={`p-4 text-center border-b ${sectionClasses}`}
+            className={`border-b ${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -104,11 +156,11 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
           <section 
             id={section.id}
             key={section.id}
-            className={`py-20 px-4 text-center ${sectionClasses}`}
+            className={`text-center ${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
            >
-             <div className="max-w-4xl mx-auto">
+             <div className={`max-w-4xl mx-auto ${layoutClasses} ${alignmentClasses}`}>
                {section.textElements && section.textElements.length > 0 ? (
                  section.textElements.map((textEl, index) => (
                    <div
@@ -117,7 +169,7 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
                        section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
                          ? 'text-white' 
                          : 'text-foreground'
-                     }`}
+                     } ${textEl.textAlign ? `text-${textEl.textAlign}` : ''}`}
                    >
                      {textEl.content}
                    </div>
@@ -142,13 +194,34 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
                    )}
                  </>
                )}
-               <button className={`px-8 py-3 rounded-lg font-semibold transition-all hover:scale-105 ${
-                 section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal')
-                   ? 'bg-white text-teal-dark hover:bg-white/90'
-                   : 'bg-primary text-primary-foreground hover:bg-primary/90'
-               }`}>
-                 Get Started
-               </button>
+               
+               {/* Button Elements */}
+               {section.buttonElements && section.buttonElements.length > 0 && (
+                 <div className="flex flex-wrap gap-4 justify-center mt-8">
+                   {section.buttonElements.map((button) => (
+                     <button
+                       key={button.id}
+                       className={`px-6 py-3 rounded-lg font-semibold transition-all hover:scale-105 ${
+                         button.variant === 'primary' 
+                           ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                           : button.variant === 'secondary'
+                           ? 'bg-secondary text-secondary-foreground hover:bg-secondary/90'
+                           : button.variant === 'outline'
+                           ? 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+                           : button.variant === 'ghost'
+                           ? 'hover:bg-accent hover:text-accent-foreground'
+                           : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                       } ${
+                         button.size === 'sm' ? 'px-4 py-2 text-sm' :
+                         button.size === 'lg' ? 'px-8 py-4 text-lg' :
+                         'px-6 py-3'
+                       }`}
+                     >
+                       {button.text}
+                     </button>
+                   ))}
+                 </div>
+               )}
              </div>
            </section>
         );
@@ -159,11 +232,11 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
           <section 
             id={section.id}
             key={section.id}
-            className={`py-16 px-4 ${sectionClasses}`}
+            className={`${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
            >
-             <div className="max-w-4xl mx-auto text-center">
+             <div className={`max-w-4xl mx-auto ${layoutClasses} ${alignmentClasses}`}>
                {section.textElements && section.textElements.length > 0 ? (
                  section.textElements.map((textEl) => (
                    <div
@@ -172,7 +245,7 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
                        section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
                          ? 'text-white' 
                          : 'text-foreground'
-                     }`}
+                     } ${textEl.textAlign ? `text-${textEl.textAlign}` : ''}`}
                    >
                      {textEl.content}
                    </div>
@@ -206,11 +279,11 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
           <section 
             id={section.id}
             key={section.id}
-            className={`py-16 px-4 ${sectionClasses}`}
+            className={`${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
-            <div className="max-w-6xl mx-auto">
+            <div className={`max-w-6xl mx-auto ${layoutClasses} ${alignmentClasses}`}>
               <h2 className={`text-3xl md:text-4xl font-bold mb-8 text-center ${
                 section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
                   ? 'text-white' 
@@ -254,7 +327,7 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
           <footer 
             id={section.id}
             key={section.id}
-            className={`py-8 px-4 text-center border-t ${sectionClasses}`}
+            className={`text-center border-t ${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -277,15 +350,19 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
       case 'pricing':
       case 'features':
       case 'blog':
+      case 'cta':
+      case 'stats':
+      case 'faq':
+      case 'newsletter':
         return (
           <section 
             id={section.id}
             key={section.id}
-            className={`py-16 px-4 ${sectionClasses}`}
+            className={`${sectionClasses}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
-            <div className="max-w-4xl mx-auto text-center">
+            <div className={`max-w-4xl mx-auto ${layoutClasses} ${alignmentClasses}`}>
               {section.textElements && section.textElements.length > 0 ? (
                 section.textElements.map((textEl) => (
                   <div
@@ -294,7 +371,7 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
                         ? 'text-white' 
                         : 'text-foreground'
-                    }`}
+                    } ${textEl.textAlign ? `text-${textEl.textAlign}` : ''}`}
                   >
                     {textEl.content}
                   </div>
@@ -319,6 +396,34 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
                   )}
                 </>
               )}
+              
+              {/* Button Elements for CTA sections */}
+              {section.type === 'cta' && section.buttonElements && section.buttonElements.length > 0 && (
+                <div className="flex flex-wrap gap-4 justify-center mt-8">
+                  {section.buttonElements.map((button) => (
+                    <button
+                      key={button.id}
+                      className={`px-6 py-3 rounded-lg font-semibold transition-all hover:scale-105 ${
+                        button.variant === 'primary' 
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          : button.variant === 'secondary'
+                          ? 'bg-secondary text-secondary-foreground hover:bg-secondary/90'
+                          : button.variant === 'outline'
+                          ? 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+                          : button.variant === 'ghost'
+                          ? 'hover:bg-accent hover:text-accent-foreground'
+                          : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                      } ${
+                        button.size === 'sm' ? 'px-4 py-2 text-sm' :
+                        button.size === 'lg' ? 'px-8 py-4 text-lg' :
+                        'px-6 py-3'
+                      }`}
+                    >
+                      {button.text}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         );
@@ -329,8 +434,13 @@ export const LivePreview = ({ sections, onSectionClick, selectedSection }: LiveP
   };
 
   return (
-    <div className="w-full h-full bg-white overflow-y-auto">
-      <div className="min-h-full">
+    <div className={`w-full h-full bg-white overflow-y-auto ${getDeviceClasses()}`}>
+      {showGrid && (
+        <div className="fixed inset-0 pointer-events-none z-10">
+          <div className="w-full h-full bg-grid-pattern opacity-10"></div>
+        </div>
+      )}
+      <div className="min-h-full relative">
         {sections.map(renderSection)}
       </div>
     </div>

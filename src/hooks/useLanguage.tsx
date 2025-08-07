@@ -57,7 +57,7 @@ const translations = {
     fontFamily: "Font Family",
     textElements: "Text Elements",
     addText: "Add Text",
-    legacyContent: "Legacy Content",
+
     companyName: "Company Name",
     slogan: "Slogan",
     galleryImages: "Gallery Images",

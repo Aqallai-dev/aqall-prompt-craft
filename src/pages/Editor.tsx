@@ -109,11 +109,19 @@ export interface SectionData {
   alignment?: 'left' | 'center' | 'right' | 'justify';
   maxWidth?: string;
   minHeight?: string;
+  textColor?: string;
   responsive?: {
     mobile?: Partial<SectionData>;
     tablet?: Partial<SectionData>;
     desktop?: Partial<SectionData>;
   };
+  // Advanced section-specific data
+  stats?: Array<{ label: string; value: string; icon?: string }>;
+  testimonials?: Array<{ name: string; role: string; content: string; avatar?: string; rating: number }>;
+  services?: Array<{ title: string; description: string; icon: string; features: string[] }>;
+  team?: Array<{ name: string; role: string; bio: string; avatar?: string; social: { twitter?: string; linkedin?: string; github?: string } }>;
+  pricing?: Array<{ name: string; price: string; period: string; features: string[]; popular?: boolean }>;
+  faq?: Array<{ question: string; answer: string }>;
 }
 
 // Pre-built section templates

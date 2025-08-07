@@ -39,11 +39,79 @@ import {
   Zap,
   Box,
   ArrowUpDown,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Droplets
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+// Color picker component
+const ColorPicker = ({ 
+  color, 
+  onColorChange, 
+  label 
+}: { 
+  color: string; 
+  onColorChange: (color: string) => void; 
+  label: string;
+}) => {
+  const presetColors = [
+    '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
+    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd',
+    '#00d2d3', '#ff9f43', '#10ac84', '#ee5a24', '#2f3542', '#747d8c', '#ff6348', '#ff4757'
+  ];
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm font-medium flex items-center gap-2">
+        <Droplets className="w-4 h-4" />
+        {label}
+      </Label>
+      <div className="flex items-center gap-2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-12 h-8 p-0 border-2"
+              style={{ backgroundColor: color }}
+            />
+          </PopoverTrigger>
+          <PopoverContent className="w-64">
+            <div className="space-y-4">
+              <div className="grid grid-cols-8 gap-2">
+                {presetColors.map((presetColor) => (
+                  <button
+                    key={presetColor}
+                    className="w-6 h-6 rounded border-2 hover:scale-110 transition-transform"
+                    style={{ backgroundColor: presetColor }}
+                    onClick={() => onColorChange(presetColor)}
+                  />
+                ))}
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Custom Color</Label>
+                <Input
+                  type="color"
+                  value={color}
+                  onChange={(e) => onColorChange(e.target.value)}
+                  className="h-8"
+                />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+        <Input
+          value={color}
+          onChange={(e) => onColorChange(e.target.value)}
+          placeholder="#000000"
+          className="flex-1"
+        />
+      </div>
+    </div>
+  );
+};
 
 interface SectionEditorProps {
   section: SectionData;
@@ -438,16 +506,7 @@ export const SectionEditor = ({
                 </div>
               )}
 
-              {/* Legacy Content Editor (for backward compatibility) */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">{t('legacyContent')}</Label>
-                <Textarea
-                  value={section.content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  placeholder={`Enter ${section.type} content...`}
-                  className="min-h-[80px] resize-none"
-                />
-              </div>
+
 
               {/* Company Info for Navbar */}
               {section.type === 'navbar' && (
@@ -757,24 +816,11 @@ export const SectionEditor = ({
                   {t('background')}
                 </Label>
                 
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      value={colorInput}
-                      onChange={(e) => setColorInput(e.target.value)}
-                      placeholder="Enter color (e.g., #ff0000, red, hsl(...))"
-                      className="text-sm"
-                    />
-                  </div>
-                  <Button 
-                    onClick={() => handleBackgroundChange(colorInput)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    {t('applyColor')}
-                  </Button>
-                </div>
+                <ColorPicker
+                  color={section.backgroundColor || '#ffffff'}
+                  onColorChange={(color) => onUpdate({ backgroundColor: color })}
+                  label="Background Color"
+                />
 
                 <div className="flex gap-2">
                   <Button
@@ -814,6 +860,20 @@ export const SectionEditor = ({
                     {section.backgroundColor === 'transparent' && !section.backgroundImage ? t('noBackground') : 'Sample Text'}
                   </span>
                 </div>
+              </div>
+
+              {/* Text Color Controls */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Type className="w-4 h-4" />
+                  Text Color
+                </Label>
+                
+                <ColorPicker
+                  color={section.textColor || '#000000'}
+                  onColorChange={(color) => onUpdate({ textColor: color })}
+                  label="Text Color"
+                />
               </div>
             </TabsContent>
 

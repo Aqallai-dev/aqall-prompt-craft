@@ -13,9 +13,10 @@ import { Slider } from "@/components/ui/slider";
 interface TextElementEditorProps {
   textElements: TextElement[];
   onUpdate: (textElements: TextElement[]) => void;
+  onChangeCount?: () => void;
 }
 
-export const TextElementEditor = ({ textElements, onUpdate }: TextElementEditorProps) => {
+export const TextElementEditor = ({ textElements, onUpdate, onChangeCount }: TextElementEditorProps) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('basic');
 
@@ -38,6 +39,16 @@ export const TextElementEditor = ({ textElements, onUpdate }: TextElementEditorP
     onUpdate(textElements.map(el => 
       el.id === id ? { ...el, ...updates } : el
     ));
+  };
+
+  const handleTextContentChange = (id: string, content: string) => {
+    updateTextElement(id, { content });
+  };
+
+  const handleTextContentFinished = () => {
+    if (onChangeCount) {
+      onChangeCount();
+    }
   };
 
   const removeTextElement = (id: string) => {
@@ -87,7 +98,13 @@ export const TextElementEditor = ({ textElements, onUpdate }: TextElementEditorP
                 <TabsContent value="basic" className="space-y-2">
                   <Input
                     value={element.content}
-                    onChange={(e) => updateTextElement(element.id, { content: e.target.value })}
+                    onChange={(e) => handleTextContentChange(element.id, e.target.value)}
+                    onBlur={handleTextContentFinished}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handleTextContentFinished();
+                      }
+                    }}
                     placeholder="Enter text content..."
                     className="text-sm"
                   />

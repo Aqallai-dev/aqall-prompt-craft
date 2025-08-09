@@ -122,6 +122,7 @@ interface SectionEditorProps {
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   availableSections?: SectionData[];
+  onChangeCount?: () => void;
 }
 
 const sectionIcons = {
@@ -170,7 +171,8 @@ export const SectionEditor = ({
   onRemove,
   onMoveUp,
   onMoveDown,
-  availableSections = [] 
+  availableSections = [],
+  onChangeCount
 }: SectionEditorProps) => {
   const [isExpanded, setIsExpanded] = useState(isSelected);
   const [colorInput, setColorInput] = useState(section.backgroundColor);
@@ -348,6 +350,7 @@ export const SectionEditor = ({
                 <TextElementEditor
                   textElements={section.textElements || []}
                   onUpdate={(textElements) => onUpdate({ textElements })}
+                  onChangeCount={onChangeCount}
                 />
               </div>
 
@@ -389,6 +392,12 @@ export const SectionEditor = ({
                           <Input
                             value={button.text}
                             onChange={(e) => updateButtonElement(button.id, { text: e.target.value })}
+                            onBlur={() => onChangeCount?.()}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                onChangeCount?.();
+                              }
+                            }}
                             placeholder="Button text..."
                             className="text-sm"
                           />
@@ -469,6 +478,12 @@ export const SectionEditor = ({
                           <Input
                             value={form.label}
                             onChange={(e) => updateFormElement(form.id, { label: e.target.value })}
+                            onBlur={() => onChangeCount?.()}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                onChangeCount?.();
+                              }
+                            }}
                             placeholder="Field label..."
                             className="text-sm"
                           />
@@ -516,6 +531,12 @@ export const SectionEditor = ({
                     <Input
                       value={section.companyName || ''}
                       onChange={(e) => onUpdate({ companyName: e.target.value })}
+                      onBlur={() => onChangeCount?.()}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          onChangeCount?.();
+                        }
+                      }}
                       placeholder="Enter company name..."
                     />
                   </div>
@@ -524,6 +545,12 @@ export const SectionEditor = ({
                     <Input
                       value={section.slogan || ''}
                       onChange={(e) => onUpdate({ slogan: e.target.value })}
+                      onBlur={() => onChangeCount?.()}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          onChangeCount?.();
+                        }
+                      }}
                       placeholder="Enter slogan (optional)..."
                     />
                   </div>

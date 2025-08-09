@@ -35,7 +35,8 @@ import {
   Image as ImageIcon,
   Layers,
   Zap,
-  Tablet
+  Tablet,
+  Globe
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +47,7 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import PricingPopup from "@/components/PricingPopup";
 
 export interface TextElement {
   id: string;
@@ -183,6 +185,10 @@ const Editor = () => {
   const [showGrid, setShowGrid] = useState(false);
   const [showAnimations, setShowAnimations] = useState(true);
   const [activeTab, setActiveTab] = useState('sections');
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+  const [changeCount, setChangeCount] = useState(0);
+  const [isEditorLocked, setIsEditorLocked] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
   const [sections, setSections] = useState<SectionData[]>([
     {
       id: 'navbar',
@@ -295,13 +301,42 @@ const Editor = () => {
     }
   }, [location.state?.prompt, location.state?.generatedSections, t]);
 
+  const incrementChangeCount = () => {
+    if (!hasPurchased) {
+      const newCount = changeCount + 1;
+      setChangeCount(newCount);
+      
+      if (newCount >= 20 && !isEditorLocked) {
+        setIsEditorLocked(true);
+        setIsPricingModalOpen(true);
+        toast.warning("You've reached the free editing limit. Please choose a plan to continue editing.");
+      }
+    }
+  };
+
   const updateSection = (id: string, updates: Partial<SectionData>) => {
+    if (isEditorLocked && !hasPurchased) {
+      toast.error("Please complete your purchase to continue editing.");
+      return;
+    }
+    
     setSections(prev => prev.map(section => 
       section.id === id ? { ...section, ...updates } : section
     ));
+    
+    // Only count changes for non-text element updates
+    // Text element changes are counted separately when user finishes editing
+    if (!updates.textElements) {
+      incrementChangeCount();
+    }
   };
 
   const addSection = (type: SectionData['type'], template?: string) => {
+    if (isEditorLocked && !hasPurchased) {
+      toast.error("Please complete your purchase to continue editing.");
+      return;
+    }
+
     const newSection: SectionData = {
       id: `${type}-${Date.now()}`,
       type,
@@ -323,15 +358,27 @@ const Editor = () => {
     }
 
     setSections(prev => [...prev, newSection]);
+    incrementChangeCount();
     toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} section added`);
   };
 
   const removeSection = (id: string) => {
+    if (isEditorLocked && !hasPurchased) {
+      toast.error("Please complete your purchase to continue editing.");
+      return;
+    }
+    
     setSections(prev => prev.filter(section => section.id !== id));
+    incrementChangeCount();
     toast.success("Section removed");
   };
 
   const moveSection = (id: string, direction: 'up' | 'down') => {
+    if (isEditorLocked && !hasPurchased) {
+      toast.error("Please complete your purchase to continue editing.");
+      return;
+    }
+
     setSections(prev => {
       const index = prev.findIndex(section => section.id === id);
       if (index === -1) return prev;
@@ -343,6 +390,7 @@ const Editor = () => {
       [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
       return newSections;
     });
+    incrementChangeCount();
   };
 
   const handleSectionClick = (sectionId: string) => {
@@ -436,6 +484,11 @@ ${html}
   };
 
   const duplicateSection = (sectionId: string) => {
+    if (isEditorLocked && !hasPurchased) {
+      toast.error("Please complete your purchase to continue editing.");
+      return;
+    }
+
     const section = sections.find(s => s.id === sectionId);
     if (section) {
       const newSection = {
@@ -444,8 +497,27 @@ ${html}
         content: `${section.content} (Copy)`
       };
       setSections(prev => [...prev, newSection]);
+      incrementChangeCount();
       toast.success('Section duplicated');
     }
+  };
+
+  const handlePublish = () => {
+    setIsPricingModalOpen(true);
+  };
+
+  const handlePlanSelect = (plan: 'monthly' | 'annual') => {
+    // Simulate successful purchase
+    setHasPurchased(true);
+    setIsEditorLocked(false);
+    setChangeCount(0); // Reset change count after purchase
+    
+    if (plan === 'monthly') {
+      toast.success('Purchase successful! You now have unlimited editing with subdomain hosting.');
+    } else {
+      toast.success('Purchase successful! You now have unlimited editing with custom domain included.');
+    }
+    // Here you would integrate with your actual payment/domain setup flow
   };
 
   const renderContent = () => {
@@ -530,8 +602,8 @@ ${html}
                   </DialogContent>
                 </Dialog>
                 
-                <Select onValueChange={addSection}>
-                  <SelectTrigger className="w-full md:w-44 text-xs md:text-sm">
+                <Select onValueChange={addSection} disabled={isEditorLocked && !hasPurchased}>
+                  <SelectTrigger className={`w-full md:w-44 text-xs md:text-sm ${isEditorLocked && !hasPurchased ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <SelectValue placeholder="Add Section" />
                   </SelectTrigger>
                   <SelectContent>
@@ -597,7 +669,11 @@ ${html}
                 {sections.map((section, index) => (
                   <Card 
                     key={section.id} 
-                    className={`cursor-pointer transition-all duration-200 ${
+                    className={`transition-all duration-200 ${
+                      isEditorLocked && !hasPurchased 
+                        ? 'opacity-60 cursor-not-allowed'
+                        : 'cursor-pointer'
+                    } ${
                       selectedSection === section.id 
                         ? 'ring-2 ring-primary bg-primary/5 border-primary/20' 
                         : 'hover:bg-muted/50 hover:border-muted-foreground/20'
@@ -708,6 +784,7 @@ ${html}
                     onMoveUp={undefined}
                     onMoveDown={undefined}
                     availableSections={sections}
+                    onChangeCount={incrementChangeCount}
                   />
                 </div>
               )}
@@ -763,10 +840,23 @@ ${html}
 
             <TabsContent value="export" className="space-y-4">
               <div className="bg-card rounded-lg border p-4">
-                <h3 className="font-medium mb-4">Export Options</h3>
+                <h3 className="font-medium mb-4">Publish & Export Options</h3>
                 
                 <div className="space-y-3">
-                  <Button onClick={exportWebsite} className="w-full">
+                  <Button onClick={handlePublish} className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Publish Website
+                  </Button>
+                  
+                  <div className="text-xs text-center text-muted-foreground mb-3">
+                    Make your website live with custom domain or subdomain
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Download Options</div>
+                  
+                  <Button onClick={exportWebsite} variant="outline" className="w-full">
                     <Download className="w-4 h-4 mr-2" />
                     Export as HTML
                   </Button>
@@ -857,6 +947,25 @@ ${html}
                 <span className="hidden sm:inline">Back to Home</span>
                 <span className="sm:hidden">Back</span>
               </Button>
+
+              {!hasPurchased && (
+                <div className="flex items-center gap-2">
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    changeCount >= 20 
+                      ? 'bg-red-100 text-red-700 border border-red-200' 
+                      : changeCount >= 15 
+                        ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                        : 'bg-green-100 text-green-700 border border-green-200'
+                  }`}>
+                    {changeCount >= 20 ? '🔒 Locked' : `${changeCount}/20 changes`}
+                  </div>
+                  {changeCount >= 15 && changeCount < 20 && (
+                    <span className="text-xs text-orange-600 font-medium">
+                      {20 - changeCount} changes left
+                    </span>
+                  )}
+                </div>
+              )}
               
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="relative">
@@ -881,9 +990,43 @@ ${html}
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 relative">
         {renderContent()}
+        
+        {/* Locked Overlay */}
+        {isEditorLocked && !isPricingModalOpen && (
+          <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 max-w-md mx-4 text-center shadow-xl">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-2xl">🔒</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Editor Locked
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  You've reached the free editing limit ({changeCount} changes made). 
+                  Choose a plan to continue editing your website.
+                </p>
+              </div>
+              <Button 
+                onClick={() => setIsPricingModalOpen(true)}
+                className="w-full"
+              >
+                Choose a Plan
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
+
+      <PricingPopup 
+        isOpen={isPricingModalOpen}
+        onClose={() => setIsPricingModalOpen(false)}
+        onSelectPlan={handlePlanSelect}
+        isEditorLocked={isEditorLocked}
+        changeCount={changeCount}
+      />
     </div>
   );
 };

@@ -19,6 +19,37 @@ export const LivePreview = ({
   showGrid = false,
   showAnimations = true
 }: LivePreviewProps) => {
+
+    // Helper function to determine text color based on background color
+  const getTextColor = (backgroundColor: string, isPrimary = true) => {
+    if (!backgroundColor || backgroundColor === 'transparent') {
+      return isPrimary ? 'text-foreground' : 'text-muted-foreground';
+    }
+
+    // If it's a hex color, determine if it's light or dark
+    if (backgroundColor.startsWith('#')) {
+      const hex = backgroundColor.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+      return brightness > 128 ? 'text-foreground' : 'text-white';
+    }
+
+    // If it's a gradient, assume dark background
+    if (backgroundColor.includes('gradient')) {
+      return 'text-white';
+    }
+
+    // For CSS variables, use the old logic
+    if (backgroundColor.includes('--teal')) {
+      return isPrimary ? 'text-white' : 'text-white/70';
+    }
+
+    return isPrimary ? 'text-foreground' : 'text-muted-foreground';
+  };
+
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const handleSectionClick = (sectionId: string) => {
@@ -73,6 +104,9 @@ export const LivePreview = ({
       minHeight: section.minHeight,
     };
 
+    // Add default section padding if no custom padding is set
+    const sectionPadding = section.padding ? undefined : 'py-8 md:py-12';
+
     const isSelected = selectedSection === section.id;
     const sectionClasses = `cursor-pointer transition-all duration-200 ${
       isSelected ? 'ring-4 ring-primary ring-opacity-50' : 'hover:ring-2 hover:ring-primary/30'
@@ -113,22 +147,14 @@ export const LivePreview = ({
                    )}
                  </div>
                  <div className="hidden sm:block">
-                   <span className={`font-bold text-lg ${
-                     section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                       ? 'text-white' 
-                       : 'text-foreground'
-                   }`}>
-                     {section.companyName || navItems[0]}
-                   </span>
-                   {section.slogan && (
-                     <p className={`text-xs ${
-                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                         ? 'text-white/70' 
-                         : 'text-muted-foreground'
-                     }`}>
-                       {section.slogan}
-                     </p>
-                   )}
+                                        <span className={`font-bold text-lg ${getTextColor(section.backgroundColor, true)}`}>
+                       {section.companyName || navItems[0]}
+                     </span>
+                     {section.slogan && (
+                       <p className={`text-xs ${getTextColor(section.backgroundColor, false)}`}>
+                         {section.slogan}
+                       </p>
+                     )}
                  </div>
                </div>
 
@@ -137,11 +163,9 @@ export const LivePreview = ({
                 {navItems.slice(1).map((item, index) => (
                   <span 
                     key={index} 
-                    className={`hover:text-teal-accent cursor-pointer transition-colors ${
-                      section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                        ? 'text-white hover:text-white/70' 
-                        : 'text-foreground hover:text-primary'
-                    }`}
+                    className={`cursor-pointer transition-colors ${
+                      getTextColor(section.backgroundColor, true)
+                    } hover:opacity-70`}
                     onClick={(e) => {
                       e.stopPropagation();
                       const targetSection = section.scrollTargets?.[item];
@@ -173,7 +197,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`text-center min-h-screen flex items-center justify-center px-4 ${sectionClasses}`}
+            className={`text-center min-h-screen flex items-center justify-center px-4 ${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
            >
@@ -183,9 +207,7 @@ export const LivePreview = ({
                    <div
                      key={textEl.id}
                      className={`mb-4 ${textEl.fontSize} ${textEl.fontFamily} ${
-                       textEl.color || (section.textColor ? '' : (section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                         ? 'text-white' 
-                         : 'text-foreground'))
+                       textEl.color || (section.textColor ? '' : getTextColor(section.backgroundColor, true))
                      } ${textEl.textAlign ? `text-${textEl.textAlign}` : ''}`}
                      style={section.textColor ? { color: section.textColor } : {}}
                    >
@@ -194,19 +216,11 @@ export const LivePreview = ({
                  ))
                ) : (
                  <>
-                   <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 ${
-                     section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                       ? 'text-white' 
-                       : 'text-foreground'
-                   }`}>
+                   <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 ${getTextColor(section.backgroundColor, true)}`}>
                      {heroContent[0] || 'Welcome'}
                    </h1>
                    {heroContent[1] && (
-                     <p className={`text-base md:text-lg lg:text-xl mb-6 md:mb-8 ${
-                       section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                         ? 'text-white/90' 
-                         : 'text-muted-foreground'
-                     }`}>
+                     <p className={`text-base md:text-lg lg:text-xl mb-6 md:mb-8 ${getTextColor(section.backgroundColor, false)}`}>
                        {heroContent[1]}
                      </p>
                    )}
@@ -249,7 +263,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -260,9 +274,7 @@ export const LivePreview = ({
                     <div
                       key={textEl.id}
                       className={`mb-4 ${textEl.fontSize} ${textEl.fontFamily} ${
-                        textEl.color || (section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                          ? 'text-white' 
-                          : 'text-foreground')
+                        textEl.color || (section.textColor ? '' : getTextColor(section.backgroundColor, true))
                       } ${textEl.textAlign ? `text-${textEl.textAlign}` : ''}`}
                     >
                       {textEl.content}
@@ -301,7 +313,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -312,9 +324,7 @@ export const LivePreview = ({
                     <div
                       key={textEl.id}
                       className={`mb-4 ${textEl.fontSize} ${textEl.fontFamily} ${
-                        textEl.color || (section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                          ? 'text-white' 
-                          : 'text-foreground')
+                        textEl.color || (section.textColor ? '' : getTextColor(section.backgroundColor, true))
                       } ${textEl.textAlign ? `text-${textEl.textAlign}` : ''}`}
                     >
                       {textEl.content}
@@ -328,18 +338,10 @@ export const LivePreview = ({
                    {section.stats.map((stat, index) => (
                      <div key={index} className="text-center group p-4 rounded-lg hover:bg-white/5 transition-all duration-300 hover:scale-105">
                        <div className="text-2xl md:text-3xl mb-2 floating-icon">{stat.icon}</div>
-                       <div className={`text-2xl md:text-3xl lg:text-4xl font-bold mb-2 stats-counter ${
-                         section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                           ? 'text-white' 
-                           : 'text-foreground'
-                       }`}>
+                       <div className={`text-2xl md:text-3xl lg:text-4xl font-bold mb-2 stats-counter ${getTextColor(section.backgroundColor, true)}`}>
                          {stat.value}
                        </div>
-                       <div className={`text-xs md:text-sm ${
-                         section.backgroundColor !== 'transparent' && section.backgroundColor.includes('--teal') 
-                           ? 'text-white/70' 
-                           : 'text-muted-foreground'
-                       }`}>
+                       <div className={`text-xs md:text-sm ${getTextColor(section.backgroundColor, false)}`}>
                          {stat.label}
                        </div>
                      </div>
@@ -355,7 +357,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -422,7 +424,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -478,7 +480,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -548,7 +550,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -606,7 +608,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -650,7 +652,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
            >
@@ -697,7 +699,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -760,7 +762,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -834,7 +836,7 @@ export const LivePreview = ({
           <footer 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -889,7 +891,7 @@ export const LivePreview = ({
           <section 
             id={section.id}
             key={section.id}
-            className={`${sectionClasses}`}
+            className={`${sectionClasses} ${sectionPadding}`}
             style={baseStyle}
             onClick={() => handleSectionClick(section.id)}
           >
@@ -919,10 +921,6 @@ export const LivePreview = ({
       {sections.map((section, index) => (
         <div key={section.id}>
           {renderSection(section)}
-          {/* Section Divider */}
-          {index < sections.length - 1 && section.type !== 'footer' && (
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-muted-foreground/20 to-transparent my-8 md:my-12"></div>
-          )}
         </div>
       ))}
     </div>

@@ -49,11 +49,15 @@ const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 export class OpenAIService {
   private static async callOpenAI(prompt: string): Promise<string> {
+    console.log("OpenAI Service: Checking API key...");
     if (!OPENAI_API_KEY) {
+      console.error("OpenAI Service: No API key found!");
       throw new Error('OpenAI API key not found. Please set VITE_OPENAI_API_KEY in your environment variables.');
     }
+    console.log("OpenAI Service: API key found, making API call...");
 
     try {
+      console.log("OpenAI Service: Making API call to OpenAI...");
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -69,7 +73,9 @@ export class OpenAIService {
 
 IMPORTANT: 
 - Analyze the user's request carefully and create content that matches their needs
-- Use appropriate colors and styling for the business type
+- Pay special attention to ANY specific color preferences mentioned in the prompt
+- If user says "green and red", "blue theme", etc., use those exact colors throughout
+- Use appropriate colors and styling for the business type (or user's specific color requests)
 - Include relevant images and content for the specific business
 - Make it feel authentic to what they asked for
 - Create 8-12 sections with modern, interactive design
@@ -107,7 +113,15 @@ ADVANCED FEATURES TO INCLUDE:
 - Responsive design considerations
 
 STYLING GUIDELINES:
-- Use colors that match the business type
+- Generate a cohesive color palette based on the business type and user's description
+- For restaurants/food: Use warm colors like #FF6B35, #F7931E, #FFD23F, #DDA15E
+- For tech/software: Use modern colors like #2563EB, #7C3AED, #059669, #DC2626
+- For healthcare: Use calming colors like #10B981, #3B82F6, #8B5CF6, #F59E0B
+- For fashion/beauty: Use elegant colors like #EC4899, #8B5CF6, #F59E0B, #10B981
+- For finance: Use professional colors like #1F2937, #374151, #6B7280, #9CA3AF
+- For creative/design: Use vibrant colors like #F97316, #EF4444, #8B5CF6, #06B6D4
+- For education: Use inspiring colors like #059669, #2563EB, #7C3AED, #DC2626
+- For real estate: Use trustworthy colors like #1F2937, #374151, #6B7280, #9CA3AF
 - Add shadows and depth (shadow-lg, shadow-xl)
 - Include hover effects and transitions
 - Use professional typography
@@ -115,6 +129,26 @@ STYLING GUIDELINES:
 - Include icons and visual elements
 - Make everything feel premium and polished
 - Use relevant images for the business type
+
+COLOR GENERATION INSTRUCTIONS:
+- Analyze the user's prompt carefully to identify ANY specific color preferences they mention
+- If the user says "green and red", "blue theme", "warm colors", etc., use those exact colors
+- If no specific colors mentioned, then use business-appropriate colors
+- Generate a cohesive color palette based on the user's explicit color requests
+- Use hex colors (e.g., "#FF6B35") instead of CSS variables
+- Create gradients for hero sections using 2-3 complementary colors
+- Ensure text colors provide good contrast with background colors
+- Use primary colors for main elements, secondary colors for accents
+
+EXAMPLES OF USER COLOR REQUESTS:
+- "restaurant website green and red" → Use #22C55E (green) and #EF4444 (red) as primary colors
+- "tech company with blue theme" → Use #2563EB (blue) and complementary blues
+- "warm and cozy colors" → Use #F97316 (orange), #F59E0B (amber), #FCD34D (yellow)
+- "dark and professional" → Use #1F2937 (dark gray), #374151 (medium gray)
+- "bright and vibrant" → Use #EF4444 (red), #F97316 (orange), #8B5CF6 (purple)
+- "soft and pastel" → Use #FCA5A5 (soft red), #A5B4FC (soft blue), #A7F3D0 (soft green)
+
+IMPORTANT: Always use hex colors, never CSS variables like hsl(var(--primary))
 
 Return a JSON object with this structure:
 {
@@ -125,7 +159,7 @@ Return a JSON object with this structure:
       "type": "navbar",
       "content": "Home | About | Services | Team | Portfolio | Contact",
       "companyName": "Company name",
-      "backgroundColor": "hsl(var(--primary))",
+      "backgroundColor": "#2563EB",
       "animation": "fadeIn",
       "layout": "flex",
       "alignment": "center"
@@ -165,363 +199,307 @@ Return a JSON object with this structure:
           "size": "lg"
         }
       ],
-      "backgroundColor": "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)",
+      "backgroundColor": "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
       "animation": "fadeIn",
       "layout": "stack",
-      "alignment": "center",
-      "padding": { "top": 120, "bottom": 120, "left": 40, "right": 40 }
+      "alignment": "center"
     },
     {
       "type": "features",
-      "content": "Why Choose Us | Discover what makes us different",
+      "content": "Feature 1 | Feature 2 | Feature 3 | Feature 4",
       "textElements": [
         {
           "id": "1",
-          "content": "Why Choose Us",
-          "fontSize": "text-4xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
+          "content": "Feature 1",
+          "fontSize": "text-2xl",
+          "fontFamily": "font-bold"
         },
         {
           "id": "2",
-          "content": "Discover what makes us different",
-          "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
-        }
-      ],
-      "services": [
-        {
-          "title": "Innovation First",
-          "description": "We push boundaries and create solutions that stand out",
-          "icon": "🚀",
-          "features": ["Cutting-edge technology", "Creative solutions", "Future-focused approach"]
+          "content": "Feature 2",
+          "fontSize": "text-2xl",
+          "fontFamily": "font-bold"
         },
         {
-          "title": "Quality Assured",
-          "description": "Every project meets our high standards of excellence",
-          "icon": "⭐",
-          "features": ["Premium materials", "Expert craftsmanship", "Rigorous testing"]
+          "id": "3",
+          "content": "Feature 3",
+          "fontSize": "text-2xl",
+          "fontFamily": "font-bold"
         },
         {
-          "title": "24/7 Support",
-          "description": "We're here for you whenever you need assistance",
-          "icon": "🛡️",
-          "features": ["Round-the-clock availability", "Expert assistance", "Quick response times"]
+          "id": "4",
+          "content": "Feature 4",
+          "fontSize": "text-2xl",
+          "fontFamily": "font-bold"
         }
       ],
-      "backgroundColor": "hsl(var(--background))",
-      "animation": "slideUp",
+      "backgroundColor": "#FFFFFF",
+      "animation": "fadeIn",
       "layout": "grid",
-      "columns": 3,
-      "gap": 8,
-      "alignment": "center",
-      "padding": { "top": 80, "bottom": 80, "left": 40, "right": 40 },
-      "galleryImages": [
-        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=300&fit=crop",
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
-        "https://images.unsplash.com/photo-1551434678-e076d223f692?w=400&h=300&fit=crop"
-      ]
+      "columns": 4,
+      "alignment": "center"
     },
     {
       "type": "stats",
-      "content": "Our Impact | Numbers that speak for themselves",
+      "content": "100+ | 50+ | 24/7 | 99%",
+      "stats": [
+        {
+          "label": "Happy Clients",
+          "value": "100+"
+        },
+        {
+          "label": "Projects Completed",
+          "value": "50+"
+        },
+        {
+          "label": "Support",
+          "value": "24/7"
+        },
+        {
+          "label": "Satisfaction",
+          "value": "99%"
+        }
+      ],
+      "backgroundColor": "#7C3AED",
+      "animation": "fadeIn",
+      "layout": "grid",
+      "columns": 4,
+      "alignment": "center"
+    },
+    {
+      "type": "about",
+      "content": "About Us | We are passionate about creating amazing experiences",
       "textElements": [
         {
           "id": "1",
-          "content": "Our Impact",
+          "content": "About Us",
           "fontSize": "text-4xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
+          "fontFamily": "font-bold"
         },
         {
           "id": "2",
-          "content": "Numbers that speak for themselves",
+          "content": "We are passionate about creating amazing experiences",
           "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
+          "fontFamily": "font-normal"
         }
       ],
-      "stats": [
-        { "label": "Happy Clients", "value": "500+", "icon": "😊" },
-        { "label": "Projects Completed", "value": "1000+", "icon": "🎯" },
-        { "label": "Years Experience", "value": "10+", "icon": "⏰" },
-        { "label": "Team Members", "value": "50+", "icon": "👥" }
+      "backgroundColor": "#F8FAFC",
+      "animation": "fadeIn",
+      "layout": "stack",
+      "alignment": "center"
+    },
+    {
+      "type": "services",
+      "content": "Service 1 | Service 2 | Service 3",
+      "services": [
+        {
+          "title": "Service 1",
+          "description": "Professional service description",
+          "icon": "🚀",
+          "features": ["Feature 1", "Feature 2", "Feature 3"]
+        },
+        {
+          "title": "Service 2",
+          "description": "Professional service description",
+          "icon": "💡",
+          "features": ["Feature 1", "Feature 2", "Feature 3"]
+        },
+        {
+          "title": "Service 3",
+          "description": "Professional service description",
+          "icon": "🎯",
+          "features": ["Feature 1", "Feature 2", "Feature 3"]
+        }
       ],
-      "backgroundColor": "hsl(var(--teal-medium))",
-      "animation": "zoomIn",
+      "backgroundColor": "#FFFFFF",
+      "animation": "fadeIn",
       "layout": "grid",
-      "columns": 4,
-      "gap": 8,
-      "alignment": "center",
-      "padding": { "top": 80, "bottom": 80, "left": 40, "right": 40 }
+      "columns": 3,
+      "alignment": "center"
     },
     {
       "type": "team",
-      "content": "Meet Our Team | The brilliant minds behind our success",
-      "textElements": [
-        {
-          "id": "1",
-          "content": "Meet Our Team",
-          "fontSize": "text-4xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
-        },
-        {
-          "id": "2",
-          "content": "The brilliant minds behind our success",
-          "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
-        }
-      ],
+      "content": "Team Member 1 | Team Member 2 | Team Member 3",
       "team": [
         {
-          "name": "Sarah Johnson",
+          "name": "Team Member 1",
           "role": "CEO & Founder",
-          "bio": "Visionary leader with 15+ years of experience in digital innovation",
-          "avatar": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-          "social": { "twitter": "#", "linkedin": "#", "github": "#" }
+          "bio": "Experienced professional with a passion for innovation",
+          "social": {
+            "twitter": "https://twitter.com/teammember1",
+            "linkedin": "https://linkedin.com/in/teammember1"
+          }
         },
         {
-          "name": "Michael Chen",
+          "name": "Team Member 2",
           "role": "CTO",
-          "bio": "Tech expert passionate about creating scalable solutions",
-          "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-          "social": { "twitter": "#", "linkedin": "#", "github": "#" }
+          "bio": "Technology expert driving digital transformation",
+          "social": {
+            "twitter": "https://twitter.com/teammember2",
+            "linkedin": "https://linkedin.com/in/teammember2"
+          }
         },
         {
-          "name": "Emily Rodriguez",
-          "role": "Creative Director",
-          "bio": "Award-winning designer with an eye for beautiful aesthetics",
-          "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-          "social": { "twitter": "#", "linkedin": "#", "github": "#" }
+          "name": "Team Member 3",
+          "role": "Design Lead",
+          "bio": "Creative designer crafting beautiful experiences",
+          "social": {
+            "twitter": "https://twitter.com/teammember3",
+            "linkedin": "https://linkedin.com/in/teammember3"
+          }
         }
       ],
-      "backgroundColor": "hsl(var(--background))",
-      "animation": "slideUp",
+      "backgroundColor": "#F8FAFC",
+      "animation": "fadeIn",
       "layout": "grid",
       "columns": 3,
-      "gap": 8,
-      "alignment": "center",
-      "padding": { "top": 80, "bottom": 80, "left": 40, "right": 40 }
+      "alignment": "center"
     },
     {
       "type": "testimonials",
-      "content": "What Our Clients Say | Real feedback from real people",
-      "textElements": [
-        {
-          "id": "1",
-          "content": "What Our Clients Say",
-          "fontSize": "text-4xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
-        },
-        {
-          "id": "2",
-          "content": "Real feedback from real people",
-          "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
-        }
-      ],
+      "content": "Testimonial 1 | Testimonial 2 | Testimonial 3",
       "testimonials": [
         {
-          "name": "Jennifer Martinez",
-          "role": "Marketing Director",
-          "content": "Working with this team was an absolute pleasure. They delivered beyond our expectations and the results speak for themselves.",
-          "avatar": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
+          "name": "Client Name 1",
+          "role": "CEO, Company 1",
+          "content": "Amazing service and results! Highly recommended.",
           "rating": 5
         },
         {
-          "name": "David Thompson",
-          "role": "Startup Founder",
-          "content": "The level of professionalism and attention to detail is unmatched. They transformed our vision into reality perfectly.",
-          "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+          "name": "Client Name 2",
+          "role": "Founder, Company 2",
+          "content": "Exceeded our expectations in every way.",
           "rating": 5
         },
         {
-          "name": "Lisa Wang",
-          "role": "Product Manager",
-          "content": "Exceptional quality and innovative solutions. They truly understand what makes a great user experience.",
-          "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+          "name": "Client Name 3",
+          "role": "Director, Company 3",
+          "content": "Professional, reliable, and delivers quality.",
           "rating": 5
         }
       ],
-      "backgroundColor": "hsl(var(--teal-light))",
+      "backgroundColor": "#FFFFFF",
       "animation": "fadeIn",
       "layout": "grid",
       "columns": 3,
-      "gap": 8,
-      "alignment": "center",
-      "padding": { "top": 80, "bottom": 80, "left": 40, "right": 40 }
+      "alignment": "center"
+    },
+    {
+      "type": "gallery",
+      "content": "Gallery Image 1 | Gallery Image 2 | Gallery Image 3 | Gallery Image 4",
+      "galleryImages": [
+        "https://images.unsplash.com/photo-1",
+        "https://images.unsplash.com/photo-2",
+        "https://images.unsplash.com/photo-3",
+        "https://images.unsplash.com/photo-4"
+      ],
+      "backgroundColor": "#F8FAFC",
+      "animation": "fadeIn",
+      "layout": "grid",
+      "columns": 4,
+      "alignment": "center"
     },
     {
       "type": "pricing",
-      "content": "Choose Your Plan | Flexible options for every need",
-      "textElements": [
-        {
-          "id": "1",
-          "content": "Choose Your Plan",
-          "fontSize": "text-4xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
-        },
-        {
-          "id": "2",
-          "content": "Flexible options for every need",
-          "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
-        }
-      ],
+      "content": "Basic Plan | Pro Plan | Enterprise Plan",
       "pricing": [
         {
-          "name": "Starter",
+          "name": "Basic Plan",
           "price": "$29",
-          "period": "per month",
-          "features": ["Basic features", "Email support", "5 projects", "1GB storage"],
-          "popular": false
+          "period": "month",
+          "features": ["Feature 1", "Feature 2", "Feature 3"]
         },
         {
-          "name": "Professional",
-          "price": "$99",
-          "period": "per month",
-          "features": ["Advanced features", "Priority support", "Unlimited projects", "10GB storage", "Custom integrations"],
+          "name": "Pro Plan",
+          "price": "$79",
+          "period": "month",
+          "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
           "popular": true
         },
         {
-          "name": "Enterprise",
-          "price": "$299",
-          "period": "per month",
-          "features": ["All features", "24/7 support", "Unlimited everything", "Custom solutions", "Dedicated manager"],
-          "popular": false
+          "name": "Enterprise Plan",
+          "price": "$199",
+          "period": "month",
+          "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"]
         }
       ],
-      "backgroundColor": "hsl(var(--background))",
-      "animation": "slideUp",
+      "backgroundColor": "#FFFFFF",
+      "animation": "fadeIn",
       "layout": "grid",
       "columns": 3,
-      "gap": 8,
-      "alignment": "center",
-      "padding": { "top": 80, "bottom": 80, "left": 40, "right": 40 }
+      "alignment": "center"
     },
     {
       "type": "faq",
-      "content": "Frequently Asked Questions | Everything you need to know",
-      "textElements": [
-        {
-          "id": "1",
-          "content": "Frequently Asked Questions",
-          "fontSize": "text-4xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
-        },
-        {
-          "id": "2",
-          "content": "Everything you need to know",
-          "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
-        }
-      ],
+      "content": "FAQ Question 1 | FAQ Question 2 | FAQ Question 3",
       "faq": [
         {
-          "question": "How long does it take to complete a project?",
-          "answer": "Project timelines vary depending on complexity. Simple projects take 2-4 weeks, while complex ones can take 8-12 weeks. We'll provide a detailed timeline during our initial consultation."
+          "question": "FAQ Question 1?",
+          "answer": "Detailed answer to the first frequently asked question."
         },
         {
-          "question": "Do you provide ongoing support after launch?",
-          "answer": "Yes! We offer comprehensive post-launch support including maintenance, updates, and technical assistance. We're committed to your long-term success."
+          "question": "FAQ Question 2?",
+          "answer": "Detailed answer to the second frequently asked question."
         },
         {
-          "question": "Can you work with our existing systems?",
-          "answer": "Absolutely! We're experts at integrating with existing systems and can work with your current technology stack to ensure seamless implementation."
-        },
-        {
-          "question": "What makes you different from other agencies?",
-          "answer": "Our combination of technical expertise, creative vision, and personalized approach sets us apart. We don't just build websites - we create digital experiences that drive results."
+          "question": "FAQ Question 3?",
+          "answer": "Detailed answer to the third frequently asked question."
         }
       ],
-      "backgroundColor": "hsl(var(--teal-light))",
+      "backgroundColor": "#F8FAFC",
       "animation": "fadeIn",
       "layout": "stack",
-      "alignment": "center",
-      "padding": { "top": 80, "bottom": 80, "left": 40, "right": 40 }
+      "alignment": "center"
     },
     {
       "type": "contact",
-      "content": "Get In Touch | Let's discuss your next project",
+      "content": "Contact Us | Get in touch for your next project",
       "textElements": [
         {
           "id": "1",
-          "content": "Get In Touch",
+          "content": "Contact Us",
           "fontSize": "text-4xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
+          "fontFamily": "font-bold"
         },
         {
           "id": "2",
-          "content": "Let's discuss your next project",
+          "content": "Get in touch for your next project",
           "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
+          "fontFamily": "font-normal"
         }
       ],
-      "buttonElements": [
-        {
-          "id": "1",
-          "text": "Send Message",
-          "variant": "primary",
-          "size": "lg"
-        }
-      ],
-      "backgroundColor": "hsl(var(--background))",
-      "animation": "slideUp",
-      "layout": "grid",
-      "columns": 2,
-      "gap": 8,
-      "alignment": "center",
-      "padding": { "top": 80, "bottom": 80, "left": 40, "right": 40 }
+      "backgroundColor": "#FFFFFF",
+      "animation": "fadeIn",
+      "layout": "stack",
+      "alignment": "center"
     },
     {
       "type": "newsletter",
-      "content": "Stay Updated | Get the latest insights and updates",
+      "content": "Stay Updated | Subscribe to our newsletter for the latest updates",
       "textElements": [
         {
           "id": "1",
           "content": "Stay Updated",
           "fontSize": "text-3xl",
-          "fontFamily": "font-bold",
-          "textAlign": "center"
+          "fontFamily": "font-bold"
         },
         {
           "id": "2",
-          "content": "Get the latest insights and updates delivered to your inbox",
+          "content": "Subscribe to our newsletter for the latest updates",
           "fontSize": "text-lg",
-          "fontFamily": "font-normal",
-          "textAlign": "center"
+          "fontFamily": "font-normal"
         }
       ],
-      "buttonElements": [
-        {
-          "id": "1",
-          "text": "Subscribe",
-          "variant": "primary",
-          "size": "md"
-        }
-      ],
-      "backgroundColor": "hsl(var(--teal-dark))",
+      "backgroundColor": "#1F2937",
       "animation": "fadeIn",
       "layout": "stack",
-      "alignment": "center",
-      "padding": { "top": 60, "bottom": 60, "left": 40, "right": 40 }
+      "alignment": "center"
     },
     {
       "type": "footer",
       "content": "© 2024 Company Name. All rights reserved.",
       "companyName": "Company Name",
-      "backgroundColor": "hsl(var(--teal-dark))",
+      "backgroundColor": "#1F2937",
       "animation": "fadeIn",
       "layout": "flex",
       "alignment": "center",
@@ -564,8 +542,23 @@ Focus on creating content that feels authentic and compelling.`
       console.log("OpenAI Service: Raw response:", response);
       
       // Parse the JSON response
-      const parsedResponse = JSON.parse(response);
-      console.log("OpenAI Service: Parsed response:", parsedResponse);
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(response);
+        console.log("OpenAI Service: Parsed response:", parsedResponse);
+      } catch (parseError) {
+        console.error("OpenAI Service: Failed to parse JSON response:", parseError);
+        console.error("Raw response that failed to parse:", response);
+        throw new Error("Invalid JSON response from OpenAI");
+      }
+      
+      // Validate the response structure
+      if (!parsedResponse.sections || !Array.isArray(parsedResponse.sections)) {
+        console.error("OpenAI Service: Invalid response structure - missing or invalid sections:", parsedResponse);
+        throw new Error("Invalid response structure from OpenAI");
+      }
+      
+      console.log("OpenAI Service: Valid sections found:", parsedResponse.sections.length);
       
       return {
         companyName: parsedResponse.companyName || 'Your Company',

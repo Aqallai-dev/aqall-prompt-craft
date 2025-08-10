@@ -40,23 +40,32 @@ const Landing = () => {
       console.log("Generated website data:", generatedWebsite);
       
       // Convert the generated sections to the format expected by the editor
-      const sections = generatedWebsite.sections.map((section, index) => ({
-        id: section.type,
-        type: section.type,
-        content: section.content,
-        textElements: section.textElements,
-        backgroundColor: section.type === 'hero' ? 'hsl(var(--teal-dark))' : 
-                       section.type === 'footer' ? 'hsl(var(--teal-medium))' : 
-                       'hsl(var(--background))',
-        companyName: section.companyName,
-        slogan: section.slogan,
-        scrollTargets: section.type === 'navbar' ? {
-          'Home': 'hero',
-          'About': 'about',
-          'Services': 'services',
-          'Contact': 'footer'
-        } : undefined
-      }));
+      const sections = generatedWebsite.sections.map((section, index) => {
+        console.log(`Processing section ${section.type}:`, section);
+        return {
+          id: section.type,
+          type: section.type,
+          content: section.content,
+          textElements: section.textElements,
+          backgroundColor: section.backgroundColor || 'hsl(var(--teal-dark))', // Use AI-generated colors or fallback to teal
+          companyName: section.companyName,
+          slogan: section.slogan,
+          // Add other properties that might be missing
+          stats: section.stats,
+          testimonials: section.testimonials,
+          services: section.services,
+          team: section.team,
+          pricing: section.pricing,
+          faq: section.faq,
+          galleryImages: section.galleryImages,
+          scrollTargets: section.type === 'navbar' ? {
+            'Home': 'hero',
+            'About': 'about',
+            'Services': 'services',
+            'Contact': 'footer'
+          } : undefined
+        };
+      });
 
       console.log("Converted sections:", sections);
 

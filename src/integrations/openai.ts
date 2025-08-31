@@ -47,6 +47,14 @@ export interface GeneratedWebsite {
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
+// Add debugging to see what's happening with the environment variable
+console.log("Environment check:");
+console.log("import.meta.env:", import.meta.env);
+console.log("VITE_OPENAI_API_KEY:", import.meta.env.VITE_OPENAI_API_KEY);
+console.log("OPENAI_API_KEY variable:", OPENAI_API_KEY);
+console.log("Type of OPENAI_API_KEY:", typeof OPENAI_API_KEY);
+console.log("Length of OPENAI_API_KEY:", OPENAI_API_KEY ? OPENAI_API_KEY.length : "undefined");
+
 export class OpenAIService {
   private static async callOpenAI(prompt: string): Promise<string> {
     console.log("OpenAI Service: Checking API key...");

@@ -32,24 +32,45 @@ const Landing = () => {
     toast.success(t('generatingWebsite'));
 
     try {
-      console.log("Starting AI generation with prompt:", prompt);
+      console.log("Landing: Starting AI generation with prompt:", prompt);
+      console.log("Landing: User authenticated:", !!user);
+      
+      // Test OpenAI connection first
+      console.log("Landing: Testing OpenAI connection...");
+      const isConnected = await OpenAIService.testConnection();
+      console.log("Landing: OpenAI connection test result:", isConnected);
+      
+      if (!isConnected) {
+        throw new Error("OpenAI service is not connected. Please check your API key.");
+      }
       
       // Generate website content using OpenAI
+      console.log("Landing: About to call OpenAIService.generateWebsite...");
       const generatedWebsite = await OpenAIService.generateWebsite(prompt);
       
-      console.log("Generated website data:", generatedWebsite);
+      console.log("Landing: Successfully received generated website data:", generatedWebsite);
       
       // Convert the generated sections to the format expected by the editor
       const sections = generatedWebsite.sections.map((section, index) => {
-        console.log(`Processing section ${section.type}:`, section);
+        console.log(`Landing: Processing section ${section.type}:`, section);
         return {
-          id: section.type,
+          id: `${section.type}-${index}`,
           type: section.type,
           content: section.content,
-          textElements: section.textElements,
-          backgroundColor: section.backgroundColor || 'hsl(var(--teal-dark))', // Use AI-generated colors or fallback to teal
-          companyName: section.companyName,
-          slogan: section.slogan,
+          textElements: section.textElements || [
+            {
+              id: '1',
+              content: section.content.split(' | ')[0] || section.content,
+              fontSize: 'text-lg',
+              fontFamily: 'font-normal'
+            }
+          ],
+          backgroundColor: section.backgroundColor || 'hsl(var(--teal-dark))',
+          layout: section.layout || 'stack',
+          alignment: section.alignment || 'center',
+          padding: { top: 40, bottom: 40, left: 20, right: 20 },
+          companyName: section.companyName || generatedWebsite.companyName,
+          slogan: section.slogan || generatedWebsite.slogan,
           // Add other properties that might be missing
           stats: section.stats,
           testimonials: section.testimonials,
@@ -57,7 +78,7 @@ const Landing = () => {
           team: section.team,
           pricing: section.pricing,
           faq: section.faq,
-          galleryImages: section.galleryImages,
+          galleryImages: section.galleryImages || [],
           scrollTargets: section.type === 'navbar' ? {
             'Home': 'hero',
             'About': 'about',
@@ -67,7 +88,7 @@ const Landing = () => {
         };
       });
 
-      console.log("Converted sections:", sections);
+      console.log("Landing: Converted sections:", sections);
 
       // Navigate to editor with generated content
       navigate('/editor', { 
@@ -82,10 +103,16 @@ const Landing = () => {
       
       toast.success(t('websiteGenerated'));
     } catch (error) {
-      console.error('Failed to generate website:', error);
+      console.error('Landing: Failed to generate website:', error);
+      console.error('Landing: Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       toast.error(t('failedToGenerate'));
       
       // Fallback: navigate with just the prompt
+      console.log("Landing: Using fallback - navigating with just prompt");
       navigate('/editor', { state: { prompt, processed: false } });
     } finally {
       setIsGenerating(false);
@@ -207,10 +234,11 @@ const Landing = () => {
                 </div>
                 
                 <Textarea
-                  placeholder={t('promptPlaceholder')}
+                  placeholder="صف موقعك الإلكتروني... (مثال: 'موقع مطعم عصري' أو 'موقع شركة تقنية' أو 'موقع شخصي للمصمم')"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   className="min-h-[100px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 />
                 
                 <Button 

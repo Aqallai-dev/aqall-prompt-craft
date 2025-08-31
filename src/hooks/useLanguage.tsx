@@ -18,7 +18,7 @@ const translations = {
     landingSubtitle: "Website Builder",
     landingHeading: "Build Websites with AI",
     landingDescription: "Create stunning websites in seconds. Just describe what you want and let AI do the magic.",
-    promptPlaceholder: "Describe your website... (e.g., 'A modern portfolio for a web developer' or 'An elegant restaurant website')",
+    promptPlaceholder: "صف موقعك الإلكتروني... (مثال: 'موقع مطعم عصري' أو 'موقع شركة تقنية' أو 'موقع شخصي للمصمم')",
     generateButton: "Generate Website",
     generating: "Generating...",
     withAIMagic: "with AI Magic",
@@ -194,7 +194,7 @@ const translations = {
     landingSubtitle: "منشئ المواقع",
     landingHeading: "إنشاء مواقع بالذكاء الاصطناعي",
     landingDescription: "أنشئ مواقع ويب مذهلة في ثوانٍ. فقط صف ما تريد ودع الذكاء الاصطناعي يقوم بالسحر.",
-    promptPlaceholder: "صف موقعك الإلكتروني... (مثال: 'موقع شخصي عصري لمطور ويب' أو 'موقع أنيق لمطعم')",
+    promptPlaceholder: "صف موقعك الإلكتروني... (مثال: 'موقع مطعم عصري' أو 'موقع شركة تقنية' أو 'موقع شخصي للمصمم')",
     generateButton: "إنشاء الموقع",
     generating: "جاري الإنشاء...",
     withAIMagic: "بسحر الذكاء الاصطناعي",
@@ -367,7 +367,7 @@ const translations = {
 };
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('ar');
 
   useEffect(() => {
     const saved = localStorage.getItem('language') as Language;

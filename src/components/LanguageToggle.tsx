@@ -13,7 +13,7 @@ export const LanguageToggle = () => {
       className="flex items-center gap-2"
     >
       <Languages className="w-4 h-4" />
-      {language === 'en' ? 'العربية' : 'English'}
+      {language === 'ar' ? 'English' : 'العربية'}
     </Button>
   );
 };

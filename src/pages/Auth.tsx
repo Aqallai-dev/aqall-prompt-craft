@@ -28,7 +28,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Please fill in all fields");
+      toast.error(t('pleaseFillFields'));
       return;
     }
 
@@ -38,7 +38,7 @@ const Auth = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Welcome back!");
+      toast.success(t('welcomeBack'));
       navigate("/");
     }
     setLoading(false);
@@ -47,12 +47,12 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Please fill in all fields");
+      toast.error(t('pleaseFillFields'));
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t('passwordMinLength'));
       return;
     }
 
@@ -61,12 +61,12 @@ const Auth = () => {
     
     if (error) {
       if (error.message.includes("already registered")) {
-        toast.error("This email is already registered. Please sign in instead.");
+        toast.error(t('emailAlreadyRegistered'));
       } else {
         toast.error(error.message);
       }
     } else {
-      toast.success("Account created! Please check your email to confirm your account.");
+      toast.success(t('accountCreated'));
       navigate("/");
     }
     setLoading(false);
@@ -78,7 +78,7 @@ const Auth = () => {
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}
-      <div className="absolute top-4 right-4">
+      <div className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'}`}>
         <LanguageToggle />
       </div>
 
@@ -92,7 +92,7 @@ const Auth = () => {
               className="w-12 h-12 drop-shadow-lg"
             />
             <div className="text-white">
-              <h1 className="text-3xl font-bold">Aqall AI</h1>
+              <h1 className="text-3xl font-bold">{t('landingTitle')}</h1>
             </div>
           </div>
         </div>
@@ -102,35 +102,35 @@ const Auth = () => {
           <CardHeader>
             <CardTitle className="text-center flex items-center justify-center gap-2">
               <Sparkles className="w-5 h-5" />
-              Welcome
+              {t('welcome')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="space-y-4">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin">{t('signIn')}</TabsTrigger>
+                <TabsTrigger value="signup">{t('signUp')}</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('email')}</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder={t('enterEmail')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t('password')}</Label>
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Enter your password"
+                      placeholder={t('enterPassword')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -139,11 +139,11 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Signing in...
+                        <Loader2 className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'} animate-spin`} />
+                        {t('signingIn')}
                       </>
                     ) : (
-                      "Sign In"
+                      t('signIn')
                     )}
                   </Button>
                 </form>
@@ -152,22 +152,22 @@ const Auth = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t('email')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder={t('enterEmail')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">{t('password')}</Label>
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Create a password (min 6 characters)"
+                      placeholder={t('createPassword')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -177,11 +177,11 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Creating account...
+                        <Loader2 className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'} animate-spin`} />
+                        {t('creatingAccount')}
                       </>
                     ) : (
-                      "Create Account"
+                      t('createAccount')
                     )}
                   </Button>
                 </form>

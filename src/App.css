@@ -97,3 +97,31 @@
 .rtl .gap-3 { gap: 0.75rem; }
 .rtl .gap-4 { gap: 1rem; }
 .rtl .gap-6 { gap: 1.5rem; }
+
+/* RTL Auth page specific styles */
+.rtl .tabs-list {
+  direction: rtl;
+}
+
+.rtl .tabs-trigger {
+  text-align: center;
+}
+
+.rtl .form-input {
+  text-align: right;
+}
+
+.rtl .form-label {
+  text-align: right;
+}
+
+/* RTL button icon positioning */
+.rtl .btn-icon-left {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .btn-icon-right {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}

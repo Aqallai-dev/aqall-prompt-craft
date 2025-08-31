@@ -21,6 +21,7 @@ const translations = {
     promptPlaceholder: "Describe your website... (e.g., 'A modern portfolio for a web developer' or 'An elegant restaurant website')",
     generateButton: "Generate Website",
     generating: "Generating...",
+    withAIMagic: "with AI Magic",
     
     // Editor Page
     editorTitle: "Website Editor",
@@ -79,15 +80,29 @@ const translations = {
     websiteGenerated: "Website generated successfully!",
     enterPrompt: "Please enter a prompt to generate your website",
     generatingWebsite: "Generating your website...",
+    failedToGenerate: "Failed to generate website. Please try again.",
+    signedOutSuccessfully: "Signed out successfully",
     
-    // Additional Landing Page Elements
-    welcomeBack: "Welcome back!",
-    signOut: "Sign Out",
+    // Auth Page
+    welcome: "Welcome",
     signIn: "Sign In",
     signUp: "Sign Up",
-    describeVision: "Describe Your Vision",
-    tellUsWhat: "Tell us what you want to create",
-    creatingWebsite: "Creating Your Website...",
+    signOut: "Sign Out",
+    email: "Email",
+    password: "Password",
+    enterEmail: "Enter your email",
+    enterPassword: "Enter your password",
+    createPassword: "Create a password (min 6 characters)",
+    signingIn: "Signing in...",
+    creatingAccount: "Creating account...",
+    createAccount: "Create Account",
+    pleaseFillFields: "Please fill in all fields",
+    passwordMinLength: "Password must be at least 6 characters",
+    welcomeBack: "Welcome back!",
+    accountCreated: "Account created! Please check your email to confirm your account.",
+    emailAlreadyRegistered: "This email is already registered. Please sign in instead.",
+    
+    // Additional Landing Page Elements
     lightningFast: "Lightning Fast",
     beautifulDesign: "Beautiful Design",
     responsive: "Responsive",
@@ -99,6 +114,9 @@ const translations = {
     transformingIdeas: "Transforming ideas into stunning websites with the power of AI.",
     manchesterUK: "Manchester, United Kingdom",
     copyright: "© 2024 Aqall AI. All rights reserved. | Manchester, United Kingdom",
+    describeVision: "Describe Your Vision",
+    tellUsWhat: "Tell us what you want to create",
+    creatingWebsite: "Creating Your Website...",
   },
   ar: {
     // Landing Page  
@@ -109,6 +127,7 @@ const translations = {
     promptPlaceholder: "صف موقعك الإلكتروني... (مثال: 'موقع شخصي عصري لمطور ويب' أو 'موقع أنيق لمطعم')",
     generateButton: "إنشاء الموقع",
     generating: "جاري الإنشاء...",
+    withAIMagic: "بسحر الذكاء الاصطناعي",
     
     // Editor Page
     editorTitle: "محرر الموقع",
@@ -167,15 +186,29 @@ const translations = {
     websiteGenerated: "تم إنشاء الموقع بنجاح!",
     enterPrompt: "يرجى إدخال وصف لإنشاء موقعك",
     generatingWebsite: "جاري إنشاء موقعك...",
+    failedToGenerate: "فشل في إنشاء الموقع. يرجى المحاولة مرة أخرى.",
+    signedOutSuccessfully: "تم تسجيل الخروج بنجاح",
     
-    // Additional Landing Page Elements
-    welcomeBack: "مرحباً بعودتك!",
-    signOut: "تسجيل الخروج",
+    // Auth Page
+    welcome: "مرحباً",
     signIn: "تسجيل الدخول",
     signUp: "إنشاء حساب",
-    describeVision: "صف رؤيتك",
-    tellUsWhat: "أخبرنا بما تريد إنشاءه",
-    creatingWebsite: "جاري إنشاء موقعك...",
+    signOut: "تسجيل الخروج",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    enterEmail: "أدخل بريدك الإلكتروني",
+    enterPassword: "أدخل كلمة المرور الخاصة بك",
+    createPassword: "أنشئ كلمة مرور (أقل من 6 أحرف)",
+    signingIn: "جاري تسجيل الدخول...",
+    creatingAccount: "جاري إنشاء الحساب...",
+    createAccount: "إنشاء حساب",
+    pleaseFillFields: "يرجى ملء جميع الحقول",
+    passwordMinLength: "يجب أن تكون كلمة المرور أقل من 6 أحرف",
+    welcomeBack: "مرحباً بعودتك!",
+    accountCreated: "تم إنشاء الحساب! يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك.",
+    emailAlreadyRegistered: "هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول بدلاً من ذلك.",
+    
+    // Additional Landing Page Elements
     lightningFast: "سريع كالبرق",
     beautifulDesign: "تصميم جميل",
     responsive: "متجاوب",
@@ -187,6 +220,9 @@ const translations = {
     transformingIdeas: "تحويل الأفكار إلى مواقع ويب مذهلة بقوة الذكاء الاصطناعي.",
     manchesterUK: "مانشستر، المملكة المتحدة",
     copyright: "© 2024 عقال الذكي. جميع الحقوق محفوظة. | مانشستر، المملكة المتحدة",
+    describeVision: "وصف رؤيتك",
+    tellUsWhat: "أخبرنا ما تريد إنشاء",
+    creatingWebsite: "جاري إنشاء موقعك...",
   },
 };
 

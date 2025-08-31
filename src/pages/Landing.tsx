@@ -83,7 +83,7 @@ const Landing = () => {
       toast.success(t('websiteGenerated'));
     } catch (error) {
       console.error('Failed to generate website:', error);
-      toast.error("Failed to generate website. Please try again.");
+      toast.error(t('failedToGenerate'));
       
       // Fallback: navigate with just the prompt
       navigate('/editor', { state: { prompt, processed: false } });
@@ -94,7 +94,7 @@ const Landing = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success("Signed out successfully");
+    toast.success(t('signedOutSuccessfully'));
   };
 
   return (
@@ -179,7 +179,7 @@ const Landing = () => {
               <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
                 {t('landingHeading')}
                 <span className="block text-transparent bg-gradient-to-r from-teal-300 to-teal-100 bg-clip-text">
-                  {isRTL ? 'بسحر الذكاء الاصطناعي' : 'with AI Magic'}
+                  {t('withAIMagic')}
                 </span>
               </h2>
               <p className="text-base md:text-xl text-teal-100/90 leading-relaxed max-w-2xl mx-auto">

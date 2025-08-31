@@ -47,37 +47,19 @@ export interface GeneratedWebsite {
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-// Add debugging to see what's happening with the environment variable
-console.log("OpenAI Service: Environment check:");
-console.log("OpenAI Service: import.meta.env:", import.meta.env);
-console.log("OpenAI Service: VITE_OPENAI_API_KEY:", import.meta.env.VITE_OPENAI_API_KEY);
-console.log("OpenAI Service: OPENAI_API_KEY variable:", OPENAI_API_KEY ? "***API_KEY_SET***" : "***API_KEY_MISSING***");
-console.log("OpenAI Service: Type of OPENAI_API_KEY:", typeof OPENAI_API_KEY);
-console.log("OpenAI Service: Length of OPENAI_API_KEY:", OPENAI_API_KEY ? OPENAI_API_KEY.length : "undefined");
-console.log("OpenAI Service: Current mode:", import.meta.env.MODE);
-console.log("OpenAI Service: Base URL:", import.meta.env.BASE_URL);
-console.log("OpenAI Service: Dev:", import.meta.env.DEV);
-console.log("OpenAI Service: Prod:", import.meta.env.PROD);
-
 export class OpenAIService {
   private static async callOpenAI(prompt: string): Promise<string> {
-    console.log("OpenAI Service: Starting API call...");
     
     if (!OPENAI_API_KEY || OPENAI_API_KEY === 'your_openai_api_key_here') {
-      console.error("OpenAI Service: Invalid API key! Please check your .env file");
       const errorMessage = import.meta.env.PROD 
         ? 'OpenAI API key not configured for production. Please set VITE_OPENAI_API_KEY environment variable in your hosting platform.'
         : 'OpenAI API key not found or invalid. Please set VITE_OPENAI_API_KEY in your .env file with a valid API key.';
       throw new Error(errorMessage);
     }
     
-    console.log("OpenAI Service: API key found, length:", OPENAI_API_KEY.length);
-
     // Detect if the prompt is in Arabic
     const isArabicPrompt = /[\u0600-\u06FF]/.test(prompt);
     const targetLanguage = isArabicPrompt ? 'Arabic' : 'English';
-    
-    console.log(`OpenAI Service: Detected language: ${targetLanguage}`);
     
     // Create a simpler, more focused prompt
     const enhancedPrompt = `Create a website for: "${prompt}"
@@ -136,8 +118,6 @@ IMPORTANT:
 - Make content relevant to: ${prompt}
 - Ensure navigation items match section types for proper scrolling`;
 
-    console.log("OpenAI Service: Sending request to OpenAI...");
-
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -162,11 +142,8 @@ IMPORTANT:
         }),
       });
 
-      console.log("OpenAI Service: Response status:", response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("OpenAI Service: API error:", response.status, errorText);
         
         let errorMessage = `OpenAI API error: ${response.status}`;
         
@@ -184,20 +161,16 @@ IMPORTANT:
       }
 
       const data = await response.json();
-      console.log("OpenAI Service: API response received");
       
       if (data.choices && data.choices[0] && data.choices[0].message) {
         const content = data.choices[0].message.content;
-        console.log("OpenAI Service: Content length:", content.length);
         
         // Try to extract JSON from the response
         try {
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
-            console.log("OpenAI Service: JSON extracted successfully");
             return jsonMatch[0];
           }
-          console.log("OpenAI Service: No JSON match, returning full content");
           return content;
         } catch (parseError) {
           console.error("OpenAI Service: JSON parsing error:", parseError);
@@ -214,14 +187,10 @@ IMPORTANT:
 
   static async generateWebsite(prompt: string): Promise<any> {
     try {
-      console.log("OpenAI Service: Starting website generation...");
-      
       const response = await this.callOpenAI(prompt);
-      console.log("OpenAI Service: Raw response received, length:", response.length);
       
       // Parse the JSON response
       const parsedResponse = JSON.parse(response);
-      console.log("OpenAI Service: JSON parsed successfully");
       
       // Validate the response structure
       if (!parsedResponse.sections || !Array.isArray(parsedResponse.sections)) {
@@ -229,7 +198,6 @@ IMPORTANT:
         throw new Error("Invalid response structure from OpenAI - missing sections array");
       }
       
-      console.log("OpenAI Service: Generation successful, sections:", parsedResponse.sections.length);
       return parsedResponse;
     } catch (error) {
       console.error('OpenAI Service: Generation failed:', error);
@@ -240,14 +208,9 @@ IMPORTANT:
   // Test method to verify the service is working
   static async testConnection(): Promise<boolean> {
     try {
-      console.log("OpenAI Service: Testing connection...");
-      
       if (!OPENAI_API_KEY || OPENAI_API_KEY === 'your_openai_api_key_here') {
-        console.error("OpenAI Service: No valid API key found");
         return false;
       }
-      
-      console.log("OpenAI Service: API key found, testing connection...");
       
       const response = await fetch('https://api.openai.com/v1/models', {
         headers: {
@@ -255,43 +218,14 @@ IMPORTANT:
         },
       });
       
-      if (response.ok) {
-        console.log("OpenAI Service: Connection test successful");
-        return true;
-      } else {
-        console.error("OpenAI Service: Connection test failed:", response.status);
-        return false;
-      }
+      return response.ok;
     } catch (error) {
-      console.error("OpenAI Service: Connection test error:", error);
       return false;
-    }
-  }
-
-  // Global test function for debugging (can be called from browser console)
-  static async debugTest(): Promise<void> {
-    console.log("=== OpenAI Service Debug Test ===");
-    console.log("Environment:", import.meta.env.MODE);
-    console.log("API Key exists:", !!OPENAI_API_KEY);
-    console.log("API Key length:", OPENAI_API_KEY ? OPENAI_API_KEY.length : 0);
-    console.log("API Key starts with 'sk-':", OPENAI_API_KEY ? OPENAI_API_KEY.startsWith('sk-') : false);
-    
-    try {
-      const isConnected = await this.testConnection();
-      console.log("Connection test result:", isConnected);
-      
-      if (isConnected) {
-        console.log("✅ OpenAI service is working correctly!");
-      } else {
-        console.log("❌ OpenAI service is not working. Check your API key.");
-      }
-    } catch (error) {
-      console.error("Debug test failed:", error);
     }
   }
 }
 
-// Make debug function available globally for testing
-if (typeof window !== 'undefined') {
-  (window as any).testOpenAI = () => OpenAIService.debugTest();
+// Make debug function available globally for testing (only in development)
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+  (window as any).testOpenAI = () => OpenAIService.testConnection();
 } 

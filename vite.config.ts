@@ -30,8 +30,11 @@ export default defineConfig(({ mode }) => ({
         },
       },
     },
+    // Ensure environment variables are properly handled
+    define: {
+      __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    },
   },
-  define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
-  },
+  // Only expose necessary environment variables
+  envPrefix: ['VITE_'],
 }));

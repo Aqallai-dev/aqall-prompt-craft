@@ -40,10 +40,101 @@ const translations = {
     uploadLogo: "Upload Logo",
     uploadBackground: "Upload Background Image",
     removeBackground: "Remove Background",
-    removeLogo: "Remove Logo",
+    removeLogo: "Remove Logo", 
     applyColor: "Apply",
     scrollTarget: "Scroll Target",
     selectSection: "Select section to scroll to",
+    
+    // Section Editor Tabs
+    layout: "Layout",
+    styling: "Styling",
+    advanced: "Advanced",
+    
+    // Section Editor Labels
+    customColor: "Custom Color",
+    button: "Button",
+    field: "Field",
+    buttonText: "Button text...",
+    fieldLabel: "Field label...",
+    buttons: "Buttons",
+    addButton: "Add Button",
+    formFields: "Form Fields",
+    addField: "Add Field",
+    
+    // Button Variants
+    primary: "Primary",
+    secondary: "Secondary",
+    outline: "Outline",
+    ghost: "Ghost",
+    destructive: "Destructive",
+    
+    // Button Sizes
+    small: "Small",
+    medium: "Medium",
+    large: "Large",
+    
+    // Field Types
+    text: "Text",
+    email: "Email",
+    password: "Password",
+    number: "Number",
+    tel: "Phone",
+    url: "URL",
+    textarea: "Text Area",
+    select: "Select",
+    checkbox: "Checkbox",
+    radio: "Radio",
+    date: "Date",
+    time: "Time",
+    file: "File",
+    
+    // Layout Options
+    stack: "Stack",
+    grid: "Grid",
+    flex: "Flex",
+    center: "Center",
+    left: "Left",
+    right: "Right",
+    
+    // Advanced Options
+    padding: "Padding",
+    margin: "Margin",
+    borderRadius: "Border Radius",
+    borderWidth: "Border Width",
+    shadow: "Shadow",
+    animation: "Animation",
+    
+    // Animation Types
+    none: "None",
+    fadeIn: "Fade In",
+    slideUp: "Slide Up",
+    slideDown: "Slide Down",
+    zoomIn: "Zoom In",
+    bounce: "Bounce",
+    
+    // Shadow Types
+    none: "None",
+    sm: "Small",
+    md: "Medium",
+    lg: "Large",
+    xl: "Extra Large",
+    
+    // Section Types (for display)
+    navbar: "Navbar",
+    hero: "Hero",
+    about: "About",
+    services: "Services",
+    testimonials: "Testimonials",
+    contact: "Contact",
+    gallery: "Gallery",
+    team: "Team",
+    pricing: "Pricing",
+    features: "Features",
+    blog: "Blog",
+    cta: "Call to Action",
+    stats: "Statistics",
+    faq: "FAQ",
+    newsletter: "Newsletter",
     
     // Background options
     noBackground: "No Background",
@@ -52,17 +143,17 @@ const translations = {
     // Navigation
     home: "Home",
     about_nav: "About",
-    services: "Services", 
+    services: "Services",
     contact: "Contact",
     testimonials: "Testimonials",
-    team: "Team", 
+    team: "Team",
     pricing: "Pricing",
     features: "Features",
     blog: "Blog",
     
     // Typography
     typography: "Typography",
-    fontSize: "Font Size", 
+    fontSize: "Font Size",
     fontFamily: "Font Family",
     textElements: "Text Elements",
     addText: "Add Text",
@@ -220,6 +311,97 @@ const translations = {
     applyColor: "تطبيق",
     scrollTarget: "هدف التمرير",
     selectSection: "اختر القسم للتمرير إليه",
+    
+    // Section Editor Tabs
+    layout: "تخطيط",
+    styling: "التنسيق",
+    advanced: "متقدم",
+    
+    // Section Editor Labels
+    customColor: "لون مخصص",
+    button: "زر",
+    field: "حقل",
+    buttonText: "نص الزر...",
+    fieldLabel: "تسمية الحقل...",
+    buttons: "الأزرار",
+    addButton: "إضافة زر",
+    formFields: "حقول النموذج",
+    addField: "إضافة حقل",
+    
+    // Button Variants
+    primary: "رئيسي",
+    secondary: "ثانوي",
+    outline: "خارجي",
+    ghost: "روحي",
+    destructive: "تدميري",
+    
+    // Button Sizes
+    small: "صغير",
+    medium: "متوسط",
+    large: "كبير",
+    
+    // Field Types
+    text: "نص",
+    email: "بريد إلكتروني",
+    password: "كلمة المرور",
+    number: "رقم",
+    tel: "هاتف",
+    url: "رابط",
+    textarea: "نص منطقة",
+    select: "اختيار",
+    checkbox: "مربع الاختيار",
+    radio: "تسطيب",
+    date: "تاريخ",
+    time: "وقت",
+    file: "ملف",
+    
+    // Layout Options
+    stack: "متداخل",
+    grid: "شبكة",
+    flex: "مرن",
+    center: "مركز",
+    left: "يسار",
+    right: "يمين",
+    
+    // Advanced Options
+    padding: "تباعد",
+    margin: "هامش",
+    borderRadius: "زاوية الحدود",
+    borderWidth: "عرض الحدود",
+    shadow: "ظل",
+    animation: "تحريك",
+    
+    // Animation Types
+    none: "لا شيء",
+    fadeIn: "تضاءة",
+    slideUp: "تحريك لأعلى",
+    slideDown: "تحريك لأسفل",
+    zoomIn: "تكبير",
+    bounce: "ركض",
+    
+    // Shadow Types
+    none: "لا شيء",
+    sm: "صغير",
+    md: "متوسط",
+    lg: "كبير",
+    xl: "كبير إضافي",
+    
+    // Section Types (for display)
+    navbar: "شريط التنقل",
+    hero: "القسم الرئيسي",
+    about: "نبذة عنا",
+    services: "الخدمات",
+    testimonials: "الشهادات",
+    contact: "اتصل بنا",
+    gallery: "المعرض",
+    team: "الفريق",
+    pricing: "الأسعار", 
+    features: "المميزات",
+    blog: "المدونة",
+    cta: "التنبيه للعملية",
+    stats: "الأحصائيات",
+    faq: "الأسئلة الشائعة",
+    newsletter: "الخبر الإخباري",
     
     // Background options
     noBackground: "بدون خلفية",

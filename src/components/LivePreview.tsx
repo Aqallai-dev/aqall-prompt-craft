@@ -163,29 +163,77 @@ export const LivePreview = ({
                 {navItems.slice(1).map((item, index) => (
                   <span 
                     key={index} 
-                    className={`cursor-pointer transition-colors ${
+                    className={`cursor-pointer transition-all duration-300 hover:scale-105 ${
                       getTextColor(section.backgroundColor, true)
-                    } hover:opacity-70`}
+                    } hover:opacity-80 relative group`}
                     onClick={(e) => {
                       e.stopPropagation();
                       const targetSection = section.scrollTargets?.[item];
                       if (targetSection) {
+                        // Add visual feedback
+                        const element = e.currentTarget;
+                        element.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                          element.style.transform = 'scale(1)';
+                        }, 150);
+                        
                         scrollToSection(targetSection);
                       }
                     }}
                   >
                     {item}
+                    {/* Hover underline effect */}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-current transition-all duration-300 group-hover:w-full"></span>
                   </span>
                 ))}
               </div>
               
               {/* Mobile Menu Button */}
               <div className="md:hidden">
-                <button className="p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
+                <button 
+                  className="p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Toggle mobile menu (you can add state for this)
+                    const mobileMenu = document.getElementById(`mobile-menu-${section.id}`);
+                    if (mobileMenu) {
+                      mobileMenu.classList.toggle('hidden');
+                    }
+                  }}
+                >
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </button>
+                
+                {/* Mobile Menu Dropdown */}
+                <div 
+                  id={`mobile-menu-${section.id}`}
+                  className="hidden absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-white/20 rounded-lg shadow-lg z-50"
+                >
+                  <div className="py-2">
+                    {navItems.slice(1).map((item, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const targetSection = section.scrollTargets?.[item];
+                          if (targetSection) {
+                            scrollToSection(targetSection);
+                            // Hide mobile menu after selection
+                            const mobileMenu = document.getElementById(`mobile-menu-${section.id}`);
+                            if (mobileMenu) {
+                              mobileMenu.classList.add('hidden');
+                            }
+                          }
+                        }}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </nav>

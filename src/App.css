@@ -166,3 +166,43 @@
   margin-left: 0;
   margin-right: 0.25rem;
 }
+
+/* Smooth scrolling for navigation */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure sections have proper spacing for navigation */
+section {
+  scroll-margin-top: 80px; /* Account for sticky navbar */
+}
+
+/* Navigation link hover effects */
+.nav-link {
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+}
+
+/* RTL navigation adjustments */
+.rtl .nav-link {
+  direction: rtl;
+}
+
+/* RTL mobile menu positioning */
+.rtl .mobile-menu {
+  right: 0;
+  left: auto;
+}
+
+/* RTL navigation item alignment */
+.rtl .nav-items {
+  flex-direction: row-reverse;
+}
+
+/* RTL logo positioning */
+.rtl .logo-section {
+  flex-direction: row-reverse;
+}

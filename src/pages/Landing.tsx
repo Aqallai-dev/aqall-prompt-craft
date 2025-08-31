@@ -79,11 +79,16 @@ const Landing = () => {
           pricing: section.pricing,
           faq: section.faq,
           galleryImages: section.galleryImages || [],
+          // Add proper scroll targets for navigation
           scrollTargets: section.type === 'navbar' ? {
-            'Home': 'hero',
-            'About': 'about',
-            'Services': 'services',
-            'Contact': 'footer'
+            'Home': 'hero-1',
+            'الرئيسية': 'hero-1',
+            'About': 'about-2',
+            'نبذة عنا': 'about-2', 
+            'Services': 'services-3',
+            'الخدمات': 'services-3',
+            'Contact': 'footer-4',
+            'اتصل بنا': 'footer-4'
           } : undefined
         };
       });

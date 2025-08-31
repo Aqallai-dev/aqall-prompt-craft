@@ -961,7 +961,7 @@ ${html}
                         ? 'bg-orange-100 text-orange-700 border border-orange-200'
                         : 'bg-green-100 text-green-700 border border-green-200'
                   }`}>
-                    {changeCount >= 20 ? t('locked') : `${changeCount}/20 changes`}
+                    {changeCount >= 20 ? t('locked') : `${changeCount}/20 ${t('changesLeft')}`}
                   </div>
                   {changeCount >= 15 && changeCount < 20 && (
                     <span className="text-xs text-orange-600 font-medium">

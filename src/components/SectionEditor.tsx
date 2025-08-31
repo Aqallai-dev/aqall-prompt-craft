@@ -51,11 +51,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 const ColorPicker = ({ 
   color, 
   onColorChange, 
-  label 
+  label,
+  t
 }: { 
   color: string; 
   onColorChange: (color: string) => void; 
   label: string;
+  t: (key: string) => string;
 }) => {
   const presetColors = [
     '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
@@ -91,7 +93,7 @@ const ColorPicker = ({
                 ))}
               </div>
               <div className="space-y-2">
-                <Label className="text-xs">Custom Color</Label>
+                <Label className="text-xs">{t('customColor')}</Label>
                 <Input
                   type="color"
                   value={color}
@@ -338,10 +340,10 @@ export const SectionEditor = ({
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
-              <TabsTrigger value="layout" className="text-xs">Layout</TabsTrigger>
-              <TabsTrigger value="styling" className="text-xs">Styling</TabsTrigger>
-              <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+              <TabsTrigger value="content" className="text-xs">{t('content')}</TabsTrigger>
+              <TabsTrigger value="layout" className="text-xs">{t('layout')}</TabsTrigger>
+              <TabsTrigger value="styling" className="text-xs">{t('styling')}</TabsTrigger>
+              <TabsTrigger value="advanced" className="text-xs">{t('advanced')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="content" className="space-y-4">
@@ -360,7 +362,7 @@ export const SectionEditor = ({
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-2">
                       <MousePointer className="w-4 h-4" />
-                      Buttons
+                      {t('buttons')}
                     </Label>
                     <Button
                       onClick={addButtonElement}
@@ -369,7 +371,7 @@ export const SectionEditor = ({
                       className="flex items-center gap-1"
                     >
                       <Plus className="w-3 h-3" />
-                      Add Button
+                      {t('addButton')}
                     </Button>
                   </div>
 
@@ -378,12 +380,15 @@ export const SectionEditor = ({
                       <Card key={button.id} className="p-3">
                         <CardContent className="p-0 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Button {index + 1}</span>
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Type className="w-4 h-4" />
+                              {t('button')} {index + 1}
+                            </Label>
                             <Button
-                              onClick={() => removeButtonElement(button.id)}
                               size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0"
+                              variant="outline"
+                              className="flex items-center gap-1"
+                              onClick={() => removeButtonElement(button.id)}
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
@@ -446,7 +451,7 @@ export const SectionEditor = ({
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-2">
                       <FileText className="w-4 h-4" />
-                      Form Fields
+                      {t('formFields')}
                     </Label>
                     <Button
                       onClick={addFormElement}
@@ -455,7 +460,7 @@ export const SectionEditor = ({
                       className="flex items-center gap-1"
                     >
                       <Plus className="w-3 h-3" />
-                      Add Field
+                      {t('addField')}
                     </Button>
                   </div>
 
@@ -464,12 +469,15 @@ export const SectionEditor = ({
                       <Card key={form.id} className="p-3">
                         <CardContent className="p-0 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Field {index + 1}</span>
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Type className="w-4 h-4" />
+                              {t('field')} {index + 1}
+                            </Label>
                             <Button
-                              onClick={() => removeFormElement(form.id)}
                               size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0"
+                              variant="outline"
+                              className="flex items-center gap-1"
+                              onClick={() => removeFormElement(form.id)}
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
@@ -847,6 +855,7 @@ export const SectionEditor = ({
                   color={section.backgroundColor || '#ffffff'}
                   onColorChange={(color) => onUpdate({ backgroundColor: color })}
                   label="Background Color"
+                  t={t}
                 />
 
                 <div className="flex gap-2">
@@ -900,6 +909,7 @@ export const SectionEditor = ({
                   color={section.textColor || '#000000'}
                   onColorChange={(color) => onUpdate({ textColor: color })}
                   label="Text Color"
+                  t={t}
                 />
               </div>
             </TabsContent>

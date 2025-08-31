@@ -82,23 +82,23 @@ Generate a JSON response with this exact structure:
   "sections": [
     {
       "type": "navbar",
-      "content": "Home | About | Services | Contact",
+      "content": "${targetLanguage === 'Arabic' ? 'الرئيسية | نبذة عنا | الخدمات | اتصل بنا' : 'Home | About | Services | Contact'}",
       "companyName": "Company name in ${targetLanguage}",
       "backgroundColor": "#2563EB"
     },
     {
       "type": "hero",
-      "content": "Welcome to our website | We provide amazing services",
+      "content": "${targetLanguage === 'Arabic' ? 'مرحباً بكم في موقعنا | نقدم خدمات مذهلة' : 'Welcome to our website | We provide amazing services'}",
       "textElements": [
         {
           "id": "1",
-          "content": "Welcome to our website",
+          "content": "${targetLanguage === 'Arabic' ? 'مرحباً بكم في موقعنا' : 'Welcome to our website'}",
           "fontSize": "text-5xl",
           "fontFamily": "font-bold"
         },
         {
           "id": "2",
-          "content": "We provide amazing services",
+          "content": "${targetLanguage === 'Arabic' ? 'نقدم خدمات مذهلة' : 'We provide amazing services'}",
           "fontSize": "text-xl",
           "fontFamily": "font-normal"
         }
@@ -107,17 +107,17 @@ Generate a JSON response with this exact structure:
     },
     {
       "type": "about",
-      "content": "About Us | We are a professional company",
+      "content": "${targetLanguage === 'Arabic' ? 'نبذة عنا | نحن شركة محترفة' : 'About Us | We are a professional company'}",
       "backgroundColor": "#F8FAFC"
     },
     {
       "type": "services",
-      "content": "Our Services | We offer various services",
+      "content": "${targetLanguage === 'Arabic' ? 'خدماتنا | نقدم خدمات متنوعة' : 'Our Services | We offer various services'}",
       "backgroundColor": "#FFFFFF"
     },
     {
       "type": "footer",
-      "content": "Contact us for more information",
+      "content": "${targetLanguage === 'Arabic' ? 'اتصل بنا للحصول على مزيد من المعلومات' : 'Contact us for more information'}",
       "backgroundColor": "#1F2937"
     }
   ]
@@ -126,7 +126,8 @@ Generate a JSON response with this exact structure:
 IMPORTANT: 
 - Write content in ${targetLanguage}
 - Return ONLY the JSON, no other text
-- Make content relevant to: ${prompt}`;
+- Make content relevant to: ${prompt}
+- Ensure navigation items match section types for proper scrolling`;
 
     console.log("OpenAI Service: Sending request to OpenAI...");
 

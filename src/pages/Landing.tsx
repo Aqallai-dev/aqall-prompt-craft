@@ -239,7 +239,7 @@ const Landing = () => {
                 </div>
                 
                 <Textarea
-                  placeholder="صف موقعك الإلكتروني... (مثال: 'موقع مطعم عصري' أو 'موقع شركة تقنية' أو 'موقع شخصي للمصمم')"
+                  placeholder={t('promptPlaceholder')}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   className="min-h-[100px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"

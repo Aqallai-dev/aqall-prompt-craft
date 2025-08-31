@@ -18,7 +18,7 @@ const translations = {
     landingSubtitle: "Website Builder",
     landingHeading: "Build Websites with AI",
     landingDescription: "Create stunning websites in seconds. Just describe what you want and let AI do the magic.",
-    promptPlaceholder: "صف موقعك الإلكتروني... (مثال: 'موقع مطعم عصري' أو 'موقع شركة تقنية' أو 'موقع شخصي للمصمم')",
+    promptPlaceholder: "Describe your website... (e.g., 'A modern restaurant website' or 'A tech company website' or 'A designer portfolio website')",
     generateButton: "Generate Website",
     generating: "Generating...",
     withAIMagic: "with AI Magic",

@@ -54,6 +54,10 @@ console.log("OpenAI Service: VITE_OPENAI_API_KEY:", import.meta.env.VITE_OPENAI_
 console.log("OpenAI Service: OPENAI_API_KEY variable:", OPENAI_API_KEY);
 console.log("OpenAI Service: Type of OPENAI_API_KEY:", typeof OPENAI_API_KEY);
 console.log("OpenAI Service: Length of OPENAI_API_KEY:", OPENAI_API_KEY ? OPENAI_API_KEY.length : "undefined");
+console.log("OpenAI Service: Current mode:", import.meta.env.MODE);
+console.log("OpenAI Service: Base URL:", import.meta.env.BASE_URL);
+console.log("OpenAI Service: Dev:", import.meta.env.DEV);
+console.log("OpenAI Service: Prod:", import.meta.env.PROD);
 
 export class OpenAIService {
   private static async callOpenAI(prompt: string): Promise<string> {
@@ -61,7 +65,10 @@ export class OpenAIService {
     
     if (!OPENAI_API_KEY || OPENAI_API_KEY === 'your_openai_api_key_here') {
       console.error("OpenAI Service: Invalid API key! Please check your .env file");
-      throw new Error('OpenAI API key not found or invalid. Please set VITE_OPENAI_API_KEY in your .env file with a valid API key.');
+      const errorMessage = import.meta.env.PROD 
+        ? 'OpenAI API key not configured for production. Please set VITE_OPENAI_API_KEY environment variable in your hosting platform.'
+        : 'OpenAI API key not found or invalid. Please set VITE_OPENAI_API_KEY in your .env file with a valid API key.';
+      throw new Error(errorMessage);
     }
     
     console.log("OpenAI Service: API key found, length:", OPENAI_API_KEY.length);

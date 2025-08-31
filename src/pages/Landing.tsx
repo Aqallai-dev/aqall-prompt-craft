@@ -29,7 +29,7 @@ const Landing = () => {
     }
 
     setIsGenerating(true);
-    toast.success("Generating your website with AI...");
+    toast.success(t('generatingWebsite'));
 
     try {
       console.log("Starting AI generation with prompt:", prompt);
@@ -80,7 +80,7 @@ const Landing = () => {
         } 
       });
       
-      toast.success("Website generated successfully!");
+      toast.success(t('websiteGenerated'));
     } catch (error) {
       console.error('Failed to generate website:', error);
       toast.error("Failed to generate website. Please try again.");
@@ -103,18 +103,22 @@ const Landing = () => {
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2 md:gap-4 z-10">
+      <div className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} md:top-6 ${isRTL ? 'md:left-6' : 'md:right-6'} flex items-center gap-2 md:gap-4 z-10`}>
         {user ? (
           <div className="flex items-center gap-2 md:gap-3">
-            <span className="text-white/90 text-xs md:text-sm font-medium hidden sm:block">Welcome back!</span>
+            <span className="text-white/90 text-xs md:text-sm font-medium hidden sm:block">
+              {t('welcomeBack')}
+            </span>
             <Button
               onClick={handleSignOut}
               variant="outline"
               size="sm"
               className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-2 md:px-3"
             >
-              <LogOut className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Sign Out</span>
+              <LogOut className={`w-3 h-3 md:w-4 md:h-4 ${isRTL ? 'ml-1 md:ml-2' : 'mr-1 md:mr-2'}`} />
+              <span className="hidden sm:inline">
+                {t('signOut')}
+              </span>
             </Button>
           </div>
         ) : (
@@ -125,16 +129,20 @@ const Landing = () => {
               size="sm"
               className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-2 md:px-3"
             >
-              <LogIn className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Sign In</span>
+              <LogIn className={`w-3 h-3 md:w-4 md:h-4 ${isRTL ? 'ml-1 md:ml-2' : 'mr-1 md:mr-2'}`} />
+              <span className="hidden sm:inline">
+                {t('signIn')}
+              </span>
             </Button>
             <Button
               onClick={() => navigate('/auth')}
               size="sm"
               className="bg-white text-[#384f51] hover:bg-white/90 font-medium text-xs md:text-sm px-2 md:px-3"
             >
-              <UserPlus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Sign Up</span>
+              <UserPlus className={`w-3 h-3 md:w-4 md:h-4 ${isRTL ? 'ml-1 md:ml-2' : 'mr-1 md:mr-2'}`} />
+              <span className="hidden sm:inline">
+                {t('signUp')}
+              </span>
             </Button>
           </div>
         )}
@@ -160,21 +168,22 @@ const Landing = () => {
               </div>
               <div className="text-white">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-teal-100 to-teal-200 bg-clip-text text-transparent drop-shadow-lg">
-                  Aqall AI
+                  {t('landingTitle')}
                 </h1>
-                <p className="text-sm md:text-lg text-teal-200 font-medium mt-1">AI-Powered Website Builder</p>
+                <p className="text-sm md:text-lg text-teal-200 font-medium mt-1">{t('landingSubtitle')}</p>
               </div>
             </div>
             
             {/* Main Headline */}
             <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto px-4">
               <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-                Create Beautiful Websites
-                <span className="block text-transparent bg-gradient-to-r from-teal-300 to-teal-100 bg-clip-text">with AI Magic</span>
+                {t('landingHeading')}
+                <span className="block text-transparent bg-gradient-to-r from-teal-300 to-teal-100 bg-clip-text">
+                  {isRTL ? 'بسحر الذكاء الاصطناعي' : 'with AI Magic'}
+                </span>
               </h2>
               <p className="text-base md:text-xl text-teal-100/90 leading-relaxed max-w-2xl mx-auto">
-                Simply describe your vision and watch as AI transforms your ideas into stunning, 
-                professional websites in seconds.
+                {t('landingDescription')}
               </p>
             </div>
           </div>
@@ -189,16 +198,16 @@ const Landing = () => {
                   </div>
                   <div>
                     <h3 className="text-lg md:text-2xl font-bold">
-                      Describe Your Vision
+                      {t('describeVision')}
                     </h3>
                     <p className="text-teal-200/80 text-xs md:text-sm">
-                      Tell us what you want to create
+                      {t('tellUsWhat')}
                     </p>
                   </div>
                 </div>
                 
                 <Textarea
-                  placeholder="Describe your website idea... (e.g., 'A modern portfolio website for a photographer with gallery and contact form')"
+                  placeholder={t('promptPlaceholder')}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   className="min-h-[100px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"
@@ -212,14 +221,14 @@ const Landing = () => {
                 >
                   {isGenerating ? (
                     <>
-                      <Wand2 className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 animate-spin" />
-                      Creating Your Website...
+                      <Wand2 className={`w-5 h-5 md:w-6 md:h-6 ${isRTL ? 'ml-2 md:ml-3' : 'mr-2 md:mr-3'} animate-spin`} />
+                      {t('creatingWebsite')}
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
-                      Generate Website
-                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2 md:ml-3" />
+                      <Sparkles className={`w-5 h-5 md:w-6 md:h-6 ${isRTL ? 'ml-2 md:ml-3' : 'mr-2 md:mr-3'}`} />
+                      {t('generateButton')}
+                      <ArrowRight className={`w-4 h-4 md:w-5 md:h-5 ${isRTL ? 'mr-2 md:mr-3' : 'ml-2 md:ml-3'}`} />
                     </>
                   )}
                 </Button>
@@ -232,18 +241,18 @@ const Landing = () => {
             {[
               {
                 icon: Zap,
-                title: "Lightning Fast",
-                description: "Generate complete websites in seconds with our advanced AI technology"
+                title: t('lightningFast'),
+                description: t('lightningFastDesc')
               },
               {
                 icon: Palette,
-                title: "Beautiful Design",
-                description: "Every website comes with stunning, modern design that looks professional"
+                title: t('beautifulDesign'),
+                description: t('beautifulDesignDesc')
               },
               {
                 icon: Smartphone,
-                title: "Responsive",
-                description: "All websites are fully responsive and work perfectly on all devices"
+                title: t('responsive'),
+                description: t('responsiveDesc')
               }
             ].map((feature, index) => (
               <div key={index} className="text-center group">
@@ -263,8 +272,8 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Company Info */}
-            <div className="text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+            <div className={`text-center ${isRTL ? 'md:text-right' : 'md:text-left'}`}>
+              <div className={`flex items-center ${isRTL ? 'justify-center md:justify-end' : 'justify-center md:justify-start'} gap-3 mb-4`}>
                 <div className="relative">
                   <div className="w-8 h-8 bg-gradient-to-br from-[#384f51] to-teal-500 rounded-full p-1 shadow-lg">
                     <img 
@@ -275,16 +284,18 @@ const Landing = () => {
                   </div>
                   <div className="absolute -inset-1 bg-gradient-to-r from-[#384f51]/20 to-teal-500/20 rounded-full blur-sm"></div>
                 </div>
-                <h3 className="text-xl font-bold text-white">Aqall AI</h3>
+                <h3 className="text-xl font-bold text-white">{t('landingTitle')}</h3>
               </div>
               <p className="text-teal-200/80 text-sm">
-                Transforming ideas into stunning websites with the power of AI.
+                {t('transformingIdeas')}
               </p>
             </div>
 
             {/* Contact Info */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-white mb-4">Contact Us</h4>
+              <h4 className="text-lg font-semibold text-white mb-4">
+                {t('contactUs')}
+              </h4>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-teal-200/90">
                   <Phone className="w-4 h-4 text-teal-300" />
@@ -296,14 +307,18 @@ const Landing = () => {
                 </div>
                 <div className="flex items-center gap-3 text-teal-200/90">
                   <MapPin className="w-4 h-4 text-teal-300" />
-                  <span className="text-sm">Manchester, United Kingdom</span>
+                  <span className="text-sm">
+                    {t('manchesterUK')}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Social Media */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-white mb-4">Follow Us</h4>
+              <h4 className="text-lg font-semibold text-white mb-4">
+                {t('followUs')}
+              </h4>
               <div className="space-y-3">
                 <a 
                   href="https://www.tiktok.com/@aqall.ai"
@@ -323,7 +338,7 @@ const Landing = () => {
           {/* Bottom Bar */}
           <div className="border-t border-white/10 mt-8 pt-6 text-center">
             <p className="text-teal-200/60 text-sm">
-              © 2024 Aqall AI. All rights reserved. | Manchester, United Kingdom
+              {t('copyright')}
             </p>
           </div>
         </div>

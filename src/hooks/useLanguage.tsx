@@ -70,6 +70,26 @@ const translations = {
     websiteGenerated: "Website generated successfully!",
     enterPrompt: "Please enter a prompt to generate your website",
     generatingWebsite: "Generating your website...",
+    
+    // Additional Landing Page Elements
+    welcomeBack: "Welcome back!",
+    signOut: "Sign Out",
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    describeVision: "Describe Your Vision",
+    tellUsWhat: "Tell us what you want to create",
+    creatingWebsite: "Creating Your Website...",
+    lightningFast: "Lightning Fast",
+    beautifulDesign: "Beautiful Design",
+    responsive: "Responsive",
+    lightningFastDesc: "Generate complete websites in seconds with our advanced AI technology",
+    beautifulDesignDesc: "Every website comes with stunning, modern design that looks professional",
+    responsiveDesc: "All websites are fully responsive and work perfectly on all devices",
+    contactUs: "Contact Us",
+    followUs: "Follow Us",
+    transformingIdeas: "Transforming ideas into stunning websites with the power of AI.",
+    manchesterUK: "Manchester, United Kingdom",
+    copyright: "© 2024 Aqall AI. All rights reserved. | Manchester, United Kingdom",
   },
   ar: {
     // Landing Page  
@@ -138,6 +158,26 @@ const translations = {
     websiteGenerated: "تم إنشاء الموقع بنجاح!",
     enterPrompt: "يرجى إدخال وصف لإنشاء موقعك",
     generatingWebsite: "جاري إنشاء موقعك...",
+    
+    // Additional Landing Page Elements
+    welcomeBack: "مرحباً بعودتك!",
+    signOut: "تسجيل الخروج",
+    signIn: "تسجيل الدخول",
+    signUp: "إنشاء حساب",
+    describeVision: "صف رؤيتك",
+    tellUsWhat: "أخبرنا بما تريد إنشاءه",
+    creatingWebsite: "جاري إنشاء موقعك...",
+    lightningFast: "سريع كالبرق",
+    beautifulDesign: "تصميم جميل",
+    responsive: "متجاوب",
+    lightningFastDesc: "أنشئ مواقع ويب كاملة في ثوانٍ بتقنية الذكاء الاصطناعي المتقدمة",
+    beautifulDesignDesc: "كل موقع يأتي مع تصميم مذهل وعصري يبدو احترافياً",
+    responsiveDesc: "جميع المواقع متجاوبة بالكامل وتعمل بشكل مثالي على جميع الأجهزة",
+    contactUs: "اتصل بنا",
+    followUs: "تابعنا",
+    transformingIdeas: "تحويل الأفكار إلى مواقع ويب مذهلة بقوة الذكاء الاصطناعي.",
+    manchesterUK: "مانشستر، المملكة المتحدة",
+    copyright: "© 2024 عقال الذكي. جميع الحقوق محفوظة. | مانشستر، المملكة المتحدة",
   },
 };
 

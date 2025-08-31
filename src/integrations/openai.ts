@@ -51,7 +51,7 @@ const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 console.log("OpenAI Service: Environment check:");
 console.log("OpenAI Service: import.meta.env:", import.meta.env);
 console.log("OpenAI Service: VITE_OPENAI_API_KEY:", import.meta.env.VITE_OPENAI_API_KEY);
-console.log("OpenAI Service: OPENAI_API_KEY variable:", OPENAI_API_KEY);
+console.log("OpenAI Service: OPENAI_API_KEY variable:", OPENAI_API_KEY ? "***API_KEY_SET***" : "***API_KEY_MISSING***");
 console.log("OpenAI Service: Type of OPENAI_API_KEY:", typeof OPENAI_API_KEY);
 console.log("OpenAI Service: Length of OPENAI_API_KEY:", OPENAI_API_KEY ? OPENAI_API_KEY.length : "undefined");
 console.log("OpenAI Service: Current mode:", import.meta.env.MODE);

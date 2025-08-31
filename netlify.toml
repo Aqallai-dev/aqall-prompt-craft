@@ -5,6 +5,12 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Disable secrets scanning for build output since we're using environment variables
+# Disable secrets scanning completely for this build
 [secrets_scanning]
-  enabled = false 
+  enabled = false
+
+# Alternative: If secrets scanning must be enabled, configure it properly
+# [secrets_scanning]
+#   enabled = true
+#   omit_paths = ["dist/**", "dist-ssr/**", "build/**", "**/dist/**"]
+#   omit_keys = ["VITE_OPENAI_API_KEY", "OPENAI_API_KEY"] 

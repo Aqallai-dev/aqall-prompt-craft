@@ -167,7 +167,20 @@ IMPORTANT:
       if (!response.ok) {
         const errorText = await response.text();
         console.error("OpenAI Service: API error:", response.status, errorText);
-        throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+        
+        let errorMessage = `OpenAI API error: ${response.status}`;
+        
+        if (response.status === 401) {
+          errorMessage = "OpenAI API key is invalid or expired. Please check your API key.";
+        } else if (response.status === 429) {
+          errorMessage = "OpenAI API rate limit exceeded. Please try again later.";
+        } else if (response.status === 500) {
+          errorMessage = "OpenAI API server error. Please try again later.";
+        } else if (response.status === 400) {
+          errorMessage = "Invalid request to OpenAI API. Please check your prompt.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -254,4 +267,31 @@ IMPORTANT:
       return false;
     }
   }
+
+  // Global test function for debugging (can be called from browser console)
+  static async debugTest(): Promise<void> {
+    console.log("=== OpenAI Service Debug Test ===");
+    console.log("Environment:", import.meta.env.MODE);
+    console.log("API Key exists:", !!OPENAI_API_KEY);
+    console.log("API Key length:", OPENAI_API_KEY ? OPENAI_API_KEY.length : 0);
+    console.log("API Key starts with 'sk-':", OPENAI_API_KEY ? OPENAI_API_KEY.startsWith('sk-') : false);
+    
+    try {
+      const isConnected = await this.testConnection();
+      console.log("Connection test result:", isConnected);
+      
+      if (isConnected) {
+        console.log("✅ OpenAI service is working correctly!");
+      } else {
+        console.log("❌ OpenAI service is not working. Check your API key.");
+      }
+    } catch (error) {
+      console.error("Debug test failed:", error);
+    }
+  }
+}
+
+// Make debug function available globally for testing
+if (typeof window !== 'undefined') {
+  (window as any).testOpenAI = () => OpenAIService.debugTest();
 } 

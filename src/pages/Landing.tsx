@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, Wand2, LogIn, UserPlus, LogOut, ArrowRight, Zap, Palette, Smartphone, Mail, MapPin, MessageCircle } from "lucide-react";
+import { Sparkles, Wand2, LogIn, UserPlus, LogOut, ArrowRight, Zap, Palette, Smartphone, Mail, MapPin, MessageCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { OpenAIService } from "@/integrations/openai";
 
@@ -114,11 +114,30 @@ const Landing = () => {
         stack: error.stack,
         name: error.name
       });
-      toast.error(t('failedToGenerate'));
       
-      // Fallback: navigate with just the prompt
-      console.log("Landing: Using fallback - navigating with just prompt");
-      navigate('/editor', { state: { prompt, processed: false } });
+      // Show specific error message based on the error type
+      if (error.message.includes('API key')) {
+        toast.error('OpenAI API key not configured. Please check your environment variables.');
+      } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        toast.error('Network error. Please check your internet connection and try again.');
+      } else if (error.message.includes('rate limit')) {
+        toast.error('OpenAI API rate limit exceeded. Please wait a moment and try again.');
+      } else if (error.message.includes('server error')) {
+        toast.error('OpenAI API server error. Please try again later.');
+      } else {
+        toast.error(t('failedToGenerate'));
+      }
+      
+      // Show additional help for API key issues
+      if (error.message.includes('API key') || error.message.includes('not connected')) {
+        console.log("Landing: Showing API key help");
+        setTimeout(() => {
+          toast.error('💡 Tip: Use the "Test API Connection" button to verify your OpenAI API key is working.');
+        }, 2000);
+      }
+      
+      // Don't navigate to editor on error - let user try again
+      console.log("Landing: AI generation failed, staying on landing page");
     } finally {
       setIsGenerating(false);
     }
@@ -248,22 +267,41 @@ const Landing = () => {
                 
                 <Button 
                   onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="w-full bg-gradient-to-r from-[#384f51] to-teal-600 hover:from-[#2d3f41] hover:to-teal-700 text-white font-bold py-4 md:py-6 text-base md:text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
-                  size="lg"
+                  disabled={isGenerating || !prompt.trim()}
+                  className="w-full md:w-auto bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isGenerating ? (
                     <>
-                      <Wand2 className={`w-5 h-5 md:w-6 md:h-6 ${isRTL ? 'ml-2 md:ml-3' : 'mr-2 md:mr-3'} animate-spin`} />
-                      {t('creatingWebsite')}
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      {t('generating')}...
                     </>
                   ) : (
                     <>
-                      <Sparkles className={`w-5 h-5 md:w-6 md:h-6 ${isRTL ? 'ml-2 md:ml-3' : 'mr-2 md:mr-3'}`} />
+                      <Sparkles className="w-5 h-5 mr-2" />
                       {t('generateButton')}
-                      <ArrowRight className={`w-4 h-4 md:w-5 md:h-5 ${isRTL ? 'mr-2 md:mr-3' : 'ml-2 md:ml-3'}`} />
                     </>
                   )}
+                </Button>
+                
+                {/* Test API Button */}
+                <Button
+                  onClick={async () => {
+                    try {
+                      const isConnected = await OpenAIService.testConnection();
+                      if (isConnected) {
+                        toast.success('✅ OpenAI API is working correctly!');
+                      } else {
+                        toast.error('❌ OpenAI API is not working. Check your API key.');
+                      }
+                    } catch (error) {
+                      toast.error('❌ Test failed: ' + error.message);
+                    }
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs text-teal-300 border-teal-300/30 hover:bg-teal-300/10"
+                >
+                  Test API Connection
                 </Button>
               </div>
             </CardContent>

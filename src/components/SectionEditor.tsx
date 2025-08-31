@@ -342,7 +342,7 @@ export const SectionEditor = ({
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="content" className="text-xs">{t('content')}</TabsTrigger>
               <TabsTrigger value="layout" className="text-xs">{t('layout')}</TabsTrigger>
-              <TabsTrigger value="styling" className="text-xs">{t('styling')}</TabsTrigger>
+              <TabsTrigger value="styling" className="text-xs">{t('exportStyling')}</TabsTrigger>
               <TabsTrigger value="advanced" className="text-xs">{t('advanced')}</TabsTrigger>
             </TabsList>
 

@@ -25,7 +25,7 @@ const translations = {
     
     // Editor Page
     editorTitle: "Website Editor",
-    livePreview: "Live Preview",
+    editorLivePreview: "Live Preview",
     
     // Sections
     navbar: "Navbar",
@@ -47,7 +47,7 @@ const translations = {
     
     // Section Editor Tabs
     layout: "Layout",
-    styling: "Styling",
+    sectionStyling: "Styling",
     advanced: "Advanced",
     
     // Section Editor Labels
@@ -75,8 +75,8 @@ const translations = {
     
     // Field Types
     text: "Text",
-    email: "Email",
-    password: "Password",
+    fieldEmail: "Email",
+    fieldPassword: "Password",
     number: "Number",
     tel: "Phone",
     url: "URL",
@@ -113,24 +113,24 @@ const translations = {
     bounce: "Bounce",
     
     // Shadow Types
-    none: "None",
-    sm: "Small",
-    md: "Medium",
-    lg: "Large",
-    xl: "Extra Large",
+    shadowNone: "None",
+    shadowSmall: "Small",
+    shadowMedium: "Medium",
+    shadowLarge: "Large",
+    shadowExtraLarge: "Extra Large",
     
     // Section Types (for display)
-    navbar: "Navbar",
-    hero: "Hero",
-    about: "About",
-    services: "Services",
-    testimonials: "Testimonials",
-    contact: "Contact",
-    gallery: "Gallery",
-    team: "Team",
-    pricing: "Pricing",
-    features: "Features",
-    blog: "Blog",
+    sectionNavbar: "Navbar",
+    sectionHero: "Hero",
+    sectionAbout: "About",
+    sectionServices: "Services",
+    sectionTestimonials: "Testimonials",
+    sectionContact: "Contact",
+    sectionGallery: "Gallery",
+    sectionTeam: "Team",
+    sectionPricing: "Pricing",
+    sectionFeatures: "Features",
+    sectionBlog: "Blog",
     cta: "Call to Action",
     stats: "Statistics",
     faq: "FAQ",
@@ -196,7 +196,7 @@ const translations = {
     proTip: "Pro Tip",
     proTipText: "Use templates for faster website creation. Click on any section to edit its content and styling.",
     sections: "Sections",
-    styling: "Styling",
+    exportStyling: "Styling",
     export: "Export",
     currentSections: "Current Sections",
     clickToEditContent: "Click to edit content",
@@ -216,7 +216,7 @@ const translations = {
     exportAsHTML: "Export as HTML",
     exportCSSOnly: "Export CSS Only",
     shareLink: "Share Link",
-    livePreview: "Live Preview",
+    exportLivePreview: "Live Preview",
     realTimeWebsitePreview: "Real-time website preview",
     fullscreen: "Fullscreen",
     newWindow: "New Window",
@@ -249,8 +249,8 @@ const translations = {
     signIn: "Sign In",
     signUp: "Sign Up",
     signOut: "Sign Out",
-    email: "Email",
-    password: "Password",
+    authEmail: "Email",
+    authPassword: "Password",
     enterEmail: "Enter your email",
     enterPassword: "Enter your password",
     createPassword: "Create a password (min 6 characters)",
@@ -292,7 +292,7 @@ const translations = {
     
     // Editor Page
     editorTitle: "محرر الموقع",
-    livePreview: "المعاينة المباشرة",
+    editorLivePreview: "المعاينة المباشرة",
     
     // Sections
     navbar: "شريط التنقل",
@@ -314,7 +314,7 @@ const translations = {
     
     // Section Editor Tabs
     layout: "تخطيط",
-    styling: "التنسيق",
+    sectionStyling: "التنسيق",
     advanced: "متقدم",
     
     // Section Editor Labels
@@ -342,8 +342,8 @@ const translations = {
     
     // Field Types
     text: "نص",
-    email: "بريد إلكتروني",
-    password: "كلمة المرور",
+    fieldEmail: "بريد إلكتروني",
+    fieldPassword: "كلمة المرور",
     number: "رقم",
     tel: "هاتف",
     url: "رابط",
@@ -380,24 +380,24 @@ const translations = {
     bounce: "ركض",
     
     // Shadow Types
-    none: "لا شيء",
-    sm: "صغير",
-    md: "متوسط",
-    lg: "كبير",
-    xl: "كبير إضافي",
+    shadowNone: "لا شيء",
+    shadowSmall: "صغير",
+    shadowMedium: "متوسط",
+    shadowLarge: "كبير",
+    shadowExtraLarge: "كبير إضافي",
     
     // Section Types (for display)
-    navbar: "شريط التنقل",
-    hero: "القسم الرئيسي",
-    about: "نبذة عنا",
-    services: "الخدمات",
-    testimonials: "الشهادات",
-    contact: "اتصل بنا",
-    gallery: "المعرض",
-    team: "الفريق",
-    pricing: "الأسعار", 
-    features: "المميزات",
-    blog: "المدونة",
+    sectionNavbar: "شريط التنقل",
+    sectionHero: "القسم الرئيسي",
+    sectionAbout: "نبذة عنا",
+    sectionServices: "الخدمات",
+    sectionTestimonials: "الشهادات",
+    sectionContact: "اتصل بنا",
+    sectionGallery: "المعرض",
+    sectionTeam: "الفريق",
+    sectionPricing: "الأسعار", 
+    sectionFeatures: "المميزات",
+    sectionBlog: "المدونة",
     cta: "التنبيه للعملية",
     stats: "الأحصائيات",
     faq: "الأسئلة الشائعة",
@@ -463,7 +463,7 @@ const translations = {
     proTip: "نصيحة مميزة",
     proTipText: "استخدم القوالب لتسريع إنشاء المواقع. انقر على أي قسم لتعديل محتواه وتنسيقه.",
     sections: "الأقسام",
-    styling: "التنسيق",
+    exportStyling: "التنسيق",
     export: "التصدير",
     currentSections: "الأقسام الحالية",
     clickToEditContent: "انقر لتعديل المحتوى",
@@ -483,7 +483,7 @@ const translations = {
     exportAsHTML: "تصدير كـ HTML",
     exportCSSOnly: "تصدير CSS فقط",
     shareLink: "رابط المشاركة",
-    livePreview: "المعاينة المباشرة",
+    exportLivePreview: "المعاينة المباشرة",
     realTimeWebsitePreview: "عرض موقع ويب حي بالوقت الفعلي",
     fullscreen: "الشاشة الكاملة",
     newWindow: "نافذة جديدة",
@@ -516,8 +516,8 @@ const translations = {
     signIn: "تسجيل الدخول",
     signUp: "إنشاء حساب",
     signOut: "تسجيل الخروج",
-    email: "البريد الإلكتروني",
-    password: "كلمة المرور",
+    authEmail: "البريد الإلكتروني",
+    authPassword: "كلمة المرور",
     enterEmail: "أدخل بريدك الإلكتروني",
     enterPassword: "أدخل كلمة المرور الخاصة بك",
     createPassword: "أنشئ كلمة مرور (أقل من 6 أحرف)",

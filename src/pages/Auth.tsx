@@ -115,7 +115,7 @@ const Auth = () => {
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">{t('email')}</Label>
+                    <Label htmlFor="email">{t('authEmail')}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -126,7 +126,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">{t('password')}</Label>
+                    <Label htmlFor="password">{t('authPassword')}</Label>
                     <Input
                       id="password"
                       type="password"
@@ -152,7 +152,7 @@ const Auth = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">{t('email')}</Label>
+                    <Label htmlFor="signup-email">{t('authEmail')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -163,7 +163,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">{t('password')}</Label>
+                    <Label htmlFor="signup-password">{t('authPassword')}</Label>
                     <Input
                       id="signup-password"
                       type="password"

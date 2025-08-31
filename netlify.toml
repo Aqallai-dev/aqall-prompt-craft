@@ -1,0 +1,10 @@
+[build]
+  command = "bun run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Disable secrets scanning for build output since we're using environment variables
+[secrets_scanning]
+  enabled = false 

@@ -661,7 +661,7 @@ ${html}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="sections" className="text-xs">{t('sections')}</TabsTrigger>
-              <TabsTrigger value="styling" className="text-xs">{t('styling')}</TabsTrigger>
+              <TabsTrigger value="styling" className="text-xs">{t('exportStyling')}</TabsTrigger>
               <TabsTrigger value="export" className="text-xs">{t('export')}</TabsTrigger>
             </TabsList>
 
@@ -911,7 +911,7 @@ ${html}
                   <Eye className="w-3 h-3 md:w-4 md:h-4 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground text-sm md:text-base">{t('livePreview')}</h3>
+                  <h3 className="font-semibold text-foreground text-sm md:text-base">{t('exportLivePreview')}</h3>
                   <p className="text-xs text-muted-foreground">{t('realTimeWebsitePreview')}</p>
                 </div>
               </div>

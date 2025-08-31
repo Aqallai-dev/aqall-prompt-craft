@@ -281,7 +281,7 @@ const translations = {
   },
   ar: {
     // Landing Page  
-    landingTitle: "عقال الذكي",
+    landingTitle: "أقل أي آي",
     landingSubtitle: "منشئ المواقع",
     landingHeading: "إنشاء مواقع بالذكاء الاصطناعي",
     landingDescription: "أنشئ مواقع ويب مذهلة في ثوانٍ. فقط صف ما تريد ودع الذكاء الاصطناعي يقوم بالسحر.",

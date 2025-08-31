@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, Wand2, LogIn, UserPlus, LogOut, ArrowRight, Zap, Palette, Smartphone, Phone, Mail, MapPin, MessageCircle } from "lucide-react";
+import { Sparkles, Wand2, LogIn, UserPlus, LogOut, ArrowRight, Zap, Palette, Smartphone, Mail, MapPin, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { OpenAIService } from "@/integrations/openai";
 
@@ -207,10 +207,10 @@ const Landing = () => {
             </div>
             
             {/* Main Headline */}
-            <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto px-4">
+            <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto px-4">
               <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
                 {t('landingHeading')}
-                <span className="block text-transparent bg-gradient-to-r from-teal-300 to-teal-100 bg-clip-text">
+                <span className="block text-transparent bg-gradient-to-r from-teal-300 to-teal-100 bg-clip-text mt-3 md:mt-4">
                   {t('withAIMagic')}
                 </span>
               </h2>
@@ -326,23 +326,15 @@ const Landing = () => {
 
             {/* Contact Info */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-white mb-4">
-                {t('contactUs')}
-              </h4>
+              <h4 className="text-lg font-semibold text-white mb-4">{t('contactUs')}</h4>
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-teal-200/90">
-                  <Phone className="w-4 h-4 text-teal-300" />
-                  <span className="text-sm">+966 55 842 6221</span>
-                </div>
                 <div className="flex items-center gap-3 text-teal-200/90">
                   <Mail className="w-4 h-4 text-teal-300" />
                   <span className="text-sm">moonyyosuf2004@gmail.com</span>
                 </div>
                 <div className="flex items-center gap-3 text-teal-200/90">
                   <MapPin className="w-4 h-4 text-teal-300" />
-                  <span className="text-sm">
-                    {t('manchesterUK')}
-                  </span>
+                  <span className="text-sm">{t('manchesterUK')}</span>
                 </div>
               </div>
             </div>

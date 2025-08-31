@@ -125,3 +125,44 @@
   margin-left: 0;
   margin-right: 0.5rem;
 }
+
+/* RTL Editor page specific styles */
+.rtl .editor-tabs {
+  direction: rtl;
+}
+
+.rtl .editor-section-list {
+  text-align: right;
+}
+
+.rtl .editor-controls {
+  direction: rtl;
+}
+
+.rtl .editor-preview {
+  direction: rtl;
+}
+
+/* RTL form elements in editor */
+.rtl .editor-input {
+  text-align: right;
+}
+
+.rtl .editor-label {
+  text-align: right;
+}
+
+/* RTL button groups in editor */
+.rtl .editor-button-group {
+  flex-direction: row-reverse;
+}
+
+/* RTL section controls */
+.rtl .section-controls {
+  direction: rtl;
+}
+
+.rtl .section-controls button {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}

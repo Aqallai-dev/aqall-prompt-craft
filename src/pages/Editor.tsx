@@ -265,7 +265,7 @@ const Editor = () => {
         // Use AI-generated sections
         console.log("Setting AI-generated sections:", generatedSections);
         setSections(generatedSections);
-        toast.success("AI-generated website loaded successfully!");
+        toast.success(t('aiGeneratedWebsiteLoaded'));
       } else {
         // Generate content based on prompt (fallback)
         console.log("Using fallback content generation - this should NOT happen if AI worked!");
@@ -313,14 +313,14 @@ const Editor = () => {
       if (newCount >= 20 && !isEditorLocked) {
         setIsEditorLocked(true);
         setIsPricingModalOpen(true);
-        toast.warning("You've reached the free editing limit. Please choose a plan to continue editing.");
+        toast.warning(t('reachedFreeEditingLimit'));
       }
     }
   };
 
   const updateSection = (id: string, updates: Partial<SectionData>) => {
     if (isEditorLocked && !hasPurchased) {
-      toast.error("Please complete your purchase to continue editing.");
+      toast.error(t('pleaseCompletePurchase'));
       return;
     }
     
@@ -337,16 +337,16 @@ const Editor = () => {
 
   const addSection = (type: SectionData['type'], template?: string) => {
     if (isEditorLocked && !hasPurchased) {
-      toast.error("Please complete your purchase to continue editing.");
+      toast.error(t('pleaseCompletePurchase'));
       return;
     }
 
     const newSection: SectionData = {
       id: `${type}-${Date.now()}`,
       type,
-      content: `New ${type} section`,
+      content: `${t('newSection')} ${type}`,
       textElements: [
-        { id: '1', content: `New ${type} section`, fontSize: 'text-lg', fontFamily: 'font-normal' }
+        { id: '1', content: `${t('newSection')} ${type}`, fontSize: 'text-lg', fontFamily: 'font-normal' }
       ],
       backgroundColor: 'hsl(var(--background))',
       layout: 'stack',
@@ -363,23 +363,23 @@ const Editor = () => {
 
     setSections(prev => [...prev, newSection]);
     incrementChangeCount();
-    toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} section added`);
+    toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} ${t('sectionAdded')}`);
   };
 
   const removeSection = (id: string) => {
     if (isEditorLocked && !hasPurchased) {
-      toast.error("Please complete your purchase to continue editing.");
+      toast.error(t('pleaseCompletePurchase'));
       return;
     }
     
     setSections(prev => prev.filter(section => section.id !== id));
     incrementChangeCount();
-    toast.success("Section removed");
+    toast.success(t('sectionRemoved'));
   };
 
   const moveSection = (id: string, direction: 'up' | 'down') => {
     if (isEditorLocked && !hasPurchased) {
-      toast.error("Please complete your purchase to continue editing.");
+      toast.error(t('pleaseCompletePurchase'));
       return;
     }
 
@@ -455,7 +455,7 @@ ${html}
     a.click();
     URL.revokeObjectURL(url);
     
-    toast.success('Website exported successfully!');
+    toast.success(t('websiteExportedSuccessfully'));
   };
 
   const generateHTML = () => {
@@ -489,7 +489,7 @@ ${html}
 
   const duplicateSection = (sectionId: string) => {
     if (isEditorLocked && !hasPurchased) {
-      toast.error("Please complete your purchase to continue editing.");
+      toast.error(t('pleaseCompletePurchase'));
       return;
     }
 
@@ -498,11 +498,11 @@ ${html}
       const newSection = {
         ...section,
         id: `${section.type}-${Date.now()}`,
-        content: `${section.content} (Copy)`
+        content: `${section.content} ${t('copy')}`
       };
       setSections(prev => [...prev, newSection]);
       incrementChangeCount();
-      toast.success('Section duplicated');
+      toast.success(t('sectionDuplicated'));
     }
   };
 
@@ -517,9 +517,9 @@ ${html}
     setChangeCount(0); // Reset change count after purchase
     
     if (plan === 'monthly') {
-      toast.success('Purchase successful! You now have unlimited editing with subdomain hosting.');
+      toast.success(t('purchaseSuccessfulMonthly'));
     } else {
-      toast.success('Purchase successful! You now have unlimited editing with custom domain included.');
+      toast.success(t('purchaseSuccessfulAnnual'));
     }
     // Here you would integrate with your actual payment/domain setup flow
   };
@@ -539,17 +539,17 @@ ${html}
                   />
                 </div>
               </div>
-              <h2 className="text-base md:text-lg font-semibold">Full Preview Mode</h2>
+              <h2 className="text-base md:text-lg font-semibold">{t('fullPreviewMode')}</h2>
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setPreviewMode('split')}
-                className="text-xs md:text-sm"
+                className="text-xs"
               >
                 <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                <span className="hidden sm:inline">Exit Fullscreen</span>
+                <span className="hidden sm:inline">{t('exitFullscreen')}</span>
               </Button>
             </div>
           </div>
@@ -579,8 +579,8 @@ ${html}
                   <Edit3 className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-base md:text-lg font-semibold">Website Builder</h2>
-                  <p className="text-xs md:text-sm text-muted-foreground">Advanced website creation tools</p>
+                  <h2 className="text-base md:text-lg font-semibold">{t('websiteBuilder')}</h2>
+                  <p className="text-xs md:text-sm text-muted-foreground">{t('advancedWebsiteCreationTools')}</p>
                 </div>
               </div>
               
@@ -589,58 +589,58 @@ ${html}
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" className="text-xs">
                       <Sparkles className="w-3 h-3 mr-1" />
-                      Templates
+                      {t('templates')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>Section Templates</DialogTitle>
+                      <DialogTitle>{t('sectionTemplates')}</DialogTitle>
                       <DialogDescription>
-                        Choose from pre-built section templates to speed up your website creation.
+                        {t('templatesDescription')}
                       </DialogDescription>
                     </DialogHeader>
                     <SectionTemplates onSelectTemplate={(template) => {
                       setSections(prev => [...prev, template]);
-                      toast.success(`${template.type} section added from template!`);
+                      toast.success(`${template.type} ${t('sectionAddedFromTemplate')}`);
                     }} />
                   </DialogContent>
                 </Dialog>
                 
                 <Select onValueChange={addSection} disabled={isEditorLocked && !hasPurchased}>
                   <SelectTrigger className={`w-full md:w-44 text-xs md:text-sm ${isEditorLocked && !hasPurchased ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <SelectValue placeholder="Add Section" />
+                    <SelectValue placeholder={t('addSection')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="hero">Hero Section</SelectItem>
-                    <SelectItem value="about">About Section</SelectItem>
-                    <SelectItem value="services">Services Section</SelectItem>
-                    <SelectItem value="testimonials">Testimonials</SelectItem>
-                    <SelectItem value="contact">Contact Section</SelectItem>
-                    <SelectItem value="gallery">Gallery Section</SelectItem>
-                    <SelectItem value="team">Team Section</SelectItem>
-                    <SelectItem value="pricing">Pricing Section</SelectItem>
-                    <SelectItem value="features">Features Section</SelectItem>
-                    <SelectItem value="blog">Blog Section</SelectItem>
-                    <SelectItem value="cta">Call to Action</SelectItem>
-                    <SelectItem value="stats">Statistics</SelectItem>
-                    <SelectItem value="faq">FAQ Section</SelectItem>
-                    <SelectItem value="newsletter">Newsletter</SelectItem>
+                    <SelectItem value="hero">{t('heroSection')}</SelectItem>
+                    <SelectItem value="about">{t('aboutSection')}</SelectItem>
+                    <SelectItem value="services">{t('servicesSection')}</SelectItem>
+                    <SelectItem value="testimonials">{t('testimonialsSection')}</SelectItem>
+                    <SelectItem value="contact">{t('contactSection')}</SelectItem>
+                    <SelectItem value="gallery">{t('gallerySection')}</SelectItem>
+                    <SelectItem value="team">{t('teamSection')}</SelectItem>
+                    <SelectItem value="pricing">{t('pricingSection')}</SelectItem>
+                    <SelectItem value="features">{t('featuresSection')}</SelectItem>
+                    <SelectItem value="blog">{t('blogSection')}</SelectItem>
+                    <SelectItem value="cta">{t('callToAction')}</SelectItem>
+                    <SelectItem value="stats">{t('statistics')}</SelectItem>
+                    <SelectItem value="faq">{t('faqSection')}</SelectItem>
+                    <SelectItem value="newsletter">{t('newsletterSection')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             
             <div className="text-xs text-muted-foreground bg-muted/50 p-2 md:p-3 rounded-md">
-              <strong>Pro Tip:</strong> Use templates for faster website creation. Click on any section to edit its content and styling.
+              <strong>{t('proTip')}:</strong> {t('proTipText')}
             </div>
           </div>
 
           {/* Enhanced Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="sections" className="text-xs">Sections</TabsTrigger>
-              <TabsTrigger value="styling" className="text-xs">Styling</TabsTrigger>
-              <TabsTrigger value="export" className="text-xs">Export</TabsTrigger>
+              <TabsTrigger value="sections" className="text-xs">{t('sections')}</TabsTrigger>
+              <TabsTrigger value="styling" className="text-xs">{t('styling')}</TabsTrigger>
+              <TabsTrigger value="export" className="text-xs">{t('export')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="sections" className="space-y-4">
@@ -648,7 +648,7 @@ ${html}
               <div className="space-y-2 md:space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    Current Sections ({sections.length})
+                    {t('currentSections')} ({sections.length})
                   </h3>
                   <div className="flex items-center gap-1">
                     <Button
@@ -703,7 +703,7 @@ ${html}
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">
-                              {section.content.split(' | ')[0] || 'Click to edit content'}
+                              {section.content.split(' | ')[0] || t('clickToEditContent')}
                             </p>
                           </div>
                         </div>
@@ -772,9 +772,9 @@ ${html}
                       <Settings className="w-3 h-3 md:w-4 md:h-4 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-sm md:text-base">Edit Section</h3>
+                      <h3 className="font-medium text-sm md:text-base">{t('editSection')}</h3>
                       <p className="text-xs text-muted-foreground">
-                        Customize content, styling, and layout
+                        {t('customizeContentStylingAndLayout')}
                       </p>
                     </div>
                   </div>
@@ -796,11 +796,11 @@ ${html}
 
             <TabsContent value="styling" className="space-y-4">
               <div className="bg-card rounded-lg border p-4">
-                <h3 className="font-medium mb-4">Global Styling</h3>
+                <h3 className="font-medium mb-4">{t('globalStyling')}</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm">Device Preview</Label>
+                    <Label className="text-sm">{t('devicePreview')}</Label>
                     <div className="flex gap-2 mt-2">
                       <Button
                         variant={deviceMode === 'desktop' ? 'default' : 'outline'}
@@ -808,7 +808,7 @@ ${html}
                         onClick={() => setDeviceMode('desktop')}
                       >
                         <Monitor className="w-4 h-4 mr-1" />
-                        Desktop
+                        {t('desktop')}
                       </Button>
                       <Button
                         variant={deviceMode === 'tablet' ? 'default' : 'outline'}
@@ -816,7 +816,7 @@ ${html}
                         onClick={() => setDeviceMode('tablet')}
                       >
                         <Tablet className="w-4 h-4 mr-1" />
-                        Tablet
+                        {t('tablet')}
                       </Button>
                       <Button
                         variant={deviceMode === 'mobile' ? 'default' : 'outline'}
@@ -824,18 +824,18 @@ ${html}
                         onClick={() => setDeviceMode('mobile')}
                       >
                         <Smartphone className="w-4 h-4 mr-1" />
-                        Mobile
+                        {t('mobile')}
                       </Button>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm">Show Grid</Label>
+                    <Label className="text-sm">{t('showGrid')}</Label>
                     <Switch checked={showGrid} onCheckedChange={setShowGrid} />
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm">Show Animations</Label>
+                    <Label className="text-sm">{t('showAnimations')}</Label>
                     <Switch checked={showAnimations} onCheckedChange={setShowAnimations} />
                   </div>
                 </div>
@@ -844,35 +844,35 @@ ${html}
 
             <TabsContent value="export" className="space-y-4">
               <div className="bg-card rounded-lg border p-4">
-                <h3 className="font-medium mb-4">Publish & Export Options</h3>
+                <h3 className="font-medium mb-4">{t('publishAndExportOptions')}</h3>
                 
                 <div className="space-y-3">
                   <Button onClick={handlePublish} className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg">
                     <Globe className="w-4 h-4 mr-2" />
-                    Publish Website
+                    {t('publishWebsite')}
                   </Button>
                   
                   <div className="text-xs text-center text-muted-foreground mb-3">
-                    Make your website live with custom domain or subdomain
+                    {t('publishDescription')}
                   </div>
                   
                   <Separator />
                   
-                  <div className="text-sm font-medium text-muted-foreground mb-2">Download Options</div>
+                  <div className="text-sm font-medium text-muted-foreground mb-2">{t('downloadOptions')}</div>
                   
                   <Button onClick={exportWebsite} variant="outline" className="w-full">
                     <Download className="w-4 h-4 mr-2" />
-                    Export as HTML
+                    {t('exportAsHTML')}
                   </Button>
                   
                   <Button variant="outline" className="w-full">
                     <Code className="w-4 h-4 mr-2" />
-                    Export CSS Only
+                    {t('exportCSSOnly')}
                   </Button>
                   
                   <Button variant="outline" className="w-full">
                     <Share2 className="w-4 h-4 mr-2" />
-                    Share Link
+                    {t('shareLink')}
                   </Button>
                 </div>
               </div>
@@ -889,8 +889,8 @@ ${html}
                   <Eye className="w-3 h-3 md:w-4 md:h-4 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground text-sm md:text-base">Live Preview</h3>
-                  <p className="text-xs text-muted-foreground">Real-time website preview</p>
+                  <h3 className="font-semibold text-foreground text-sm md:text-base">{t('livePreview')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('realTimeWebsitePreview')}</p>
                 </div>
               </div>
               
@@ -902,7 +902,7 @@ ${html}
                   className="text-xs h-8 md:h-9 border-2"
                 >
                   <Maximize2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                  <span className="hidden sm:inline">Fullscreen</span>
+                  <span className="hidden sm:inline">{t('fullscreen')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -911,7 +911,7 @@ ${html}
                   className="text-xs h-8 md:h-9 border-2"
                 >
                   <ExternalLink className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                  <span className="hidden sm:inline">New Window</span>
+                  <span className="hidden sm:inline">{t('newWindow')}</span>
                 </Button>
               </div>
             </div>
@@ -948,8 +948,8 @@ ${html}
                 className="flex items-center gap-1 md:gap-2 hover:bg-muted/50 text-xs md:text-sm"
               >
                 <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
-                <span className="hidden sm:inline">Back to Home</span>
-                <span className="sm:hidden">Back</span>
+                <span className="hidden sm:inline">{t('backToHome')}</span>
+                <span className="sm:hidden">{t('back')}</span>
               </Button>
 
               {!hasPurchased && (
@@ -961,11 +961,11 @@ ${html}
                         ? 'bg-orange-100 text-orange-700 border border-orange-200'
                         : 'bg-green-100 text-green-700 border border-green-200'
                   }`}>
-                    {changeCount >= 20 ? '🔒 Locked' : `${changeCount}/20 changes`}
+                    {changeCount >= 20 ? t('locked') : `${changeCount}/20 changes`}
                   </div>
                   {changeCount >= 15 && changeCount < 20 && (
                     <span className="text-xs text-orange-600 font-medium">
-                      {20 - changeCount} changes left
+                      {20 - changeCount} {t('changesLeft')}
                     </span>
                   )}
                 </div>
@@ -983,8 +983,8 @@ ${html}
                   <div className="absolute -inset-1 bg-gradient-to-r from-[#384f51]/20 to-teal-500/20 rounded-full blur-sm"></div>
                 </div>
                 <div>
-                  <h1 className="text-lg md:text-xl font-bold text-foreground">Website Editor</h1>
-                  <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">Customize your website sections</p>
+                  <h1 className="text-lg md:text-xl font-bold text-foreground">{t('websiteEditor')}</h1>
+                  <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">{t('customizeYourWebsiteSections')}</p>
                 </div>
               </div>
             </div>
@@ -1006,18 +1006,17 @@ ${html}
                   <span className="text-2xl">🔒</span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Editor Locked
+                  {t('editorLocked')}
                 </h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  You've reached the free editing limit ({changeCount} changes made). 
-                  Choose a plan to continue editing your website.
+                  {t('editorLockedDescription').replace('{changeCount}', changeCount.toString())}
                 </p>
               </div>
               <Button 
                 onClick={() => setIsPricingModalOpen(true)}
                 className="w-full"
               >
-                Choose a Plan
+                {t('chooseAPlan')}
               </Button>
             </div>
           </div>

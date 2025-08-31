@@ -282,27 +282,6 @@ const Landing = () => {
                     </>
                   )}
                 </Button>
-                
-                {/* Test API Button */}
-                <Button
-                  onClick={async () => {
-                    try {
-                      const isConnected = await OpenAIService.testConnection();
-                      if (isConnected) {
-                        toast.success('✅ OpenAI API is working correctly!');
-                      } else {
-                        toast.error('❌ OpenAI API is not working. Check your API key.');
-                      }
-                    } catch (error) {
-                      toast.error('❌ Test failed: ' + error.message);
-                    }
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs text-teal-300 border-teal-300/30 hover:bg-teal-300/10"
-                >
-                  Test API Connection
-                </Button>
               </div>
             </CardContent>
           </Card>

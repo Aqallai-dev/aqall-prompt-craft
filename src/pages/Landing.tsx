@@ -206,10 +206,10 @@ const Landing = () => {
               onClick={handleSignOut}
               variant="outline"
               size="sm"
-              className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-2 md:px-3"
+              className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-3 md:px-3"
             >
               <LogOut className={`w-3 h-3 md:w-4 md:h-4 ${isRTL ? 'ml-1 md:ml-2' : 'mr-1 md:mr-2'}`} />
-              <span className="hidden sm:inline">
+              <span className="inline">
                 {t('signOut')}
               </span>
             </Button>
@@ -220,20 +220,20 @@ const Landing = () => {
               onClick={() => navigate('/auth')}
               variant="outline"
               size="sm"
-              className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-2 md:px-3"
+              className="bg-white/5 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm text-xs md:text-sm px-3 md:px-3"
             >
               <LogIn className={`w-3 h-3 md:w-4 md:h-4 ${isRTL ? 'ml-1 md:ml-2' : 'mr-1 md:mr-2'}`} />
-              <span className="hidden sm:inline">
+              <span className="inline">
                 {t('signIn')}
               </span>
             </Button>
             <Button
               onClick={() => navigate('/auth')}
               size="sm"
-              className="bg-white text-[#384f51] hover:bg-white/90 font-medium text-xs md:text-sm px-2 md:px-3"
+              className="bg-white text-[#384f51] hover:bg-white/90 font-medium text-xs md:text-sm px-3 md:px-3"
             >
               <UserPlus className={`w-3 h-3 md:w-4 md:h-4 ${isRTL ? 'ml-1 md:ml-2' : 'mr-1 md:mr-2'}`} />
-              <span className="hidden sm:inline">
+              <span className="inline">
                 {t('signUp')}
               </span>
             </Button>
@@ -369,15 +369,16 @@ const Landing = () => {
                     placeholder={t('promptPlaceholder')}
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[100px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"
+                    className="min-h-[140px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"
                     dir={isRTL ? 'rtl' : 'ltr'}
                   />
                   
-                  <Button 
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !prompt.trim()}
-                    className="w-full md:w-auto bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
+                  <div className="flex justify-center">
+                    <Button 
+                      onClick={handleGenerate}
+                      disabled={isGenerating || !prompt.trim()}
+                      className="w-full md:w-auto bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
                     {isGenerating ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -389,7 +390,8 @@ const Landing = () => {
                         {t('generateButton')}
                       </>
                     )}
-                  </Button>
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>

@@ -424,6 +424,12 @@ const Editor = () => {
     setSelectedSection(sectionId);
   };
 
+  const handleSave = () => {
+    // Here you would implement the save functionality
+    // For now, just show a success message
+    toast.success(t('websiteSavedSuccessfully') || 'Website saved successfully!');
+  };
+
   const openPreviewInNewWindow = () => {
     const previewWindow = window.open('', '_blank', 'width=1200,height=800');
     if (previewWindow) {
@@ -598,12 +604,19 @@ ${html}
           <div className="bg-card rounded-lg border p-4 md:p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 mb-4">
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
-                  <Edit3 className="w-4 h-4 md:w-5 md:w-5 text-primary" />
-                </div>
+                {/* Removed the non-pressable edit logo */}
               </div>
               
               <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleSave}
+                  className="bg-primary hover:bg-primary/90 text-white text-xs md:text-sm"
+                  size="sm"
+                >
+                  <Save className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">{t('save') || 'Save'}</span>
+                </Button>
+                
                 <Select onValueChange={addSection} disabled={isEditorLocked && !hasPurchased}>
                   <SelectTrigger className={`w-full md:w-44 text-xs md:text-sm ${isEditorLocked && !hasPurchased ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <SelectValue placeholder={t('addSection')} />

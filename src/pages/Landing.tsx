@@ -337,9 +337,6 @@ const Landing = () => {
                             {existingWebsite.slogan}
                           </p>
                         )}
-                        <p className="text-teal-200/60 text-sm mb-6">
-                          {t('websiteWithSections').replace('{count}', (existingWebsite.sections?.length || 0).toString())}
-                        </p>
                       </div>
                       <Button
                         onClick={handleViewExistingWebsite}

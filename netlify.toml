@@ -7,4 +7,18 @@
 
 # Completely disable secrets scanning
 [secrets_scanning]
-  enabled = false 
+  enabled = false
+
+# Handle subdomain routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Host = "*.aqall.dev"}
+
+# Handle main domain
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Host = "your-main-domain.netlify.app"}

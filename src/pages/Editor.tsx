@@ -47,7 +47,6 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import PricingPopup from "@/components/PricingPopup";
 
 export interface TextElement {
   id: string;
@@ -185,10 +184,7 @@ const Editor = () => {
   const [showGrid, setShowGrid] = useState(false);
   const [showAnimations, setShowAnimations] = useState(true);
   const [activeTab, setActiveTab] = useState('sections');
-  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
-  const [changeCount, setChangeCount] = useState(0);
-  const [isEditorLocked, setIsEditorLocked] = useState(false);
-  const [hasPurchased, setHasPurchased] = useState(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [sections, setSections] = useState<SectionData[]>([
     {
       id: 'navbar',
@@ -328,42 +324,13 @@ const Editor = () => {
     }
   }, [location.state?.prompt, location.state?.generatedSections, location.state?.savedSections, location.state?.existingWebsite, t]);
 
-  const incrementChangeCount = () => {
-    if (!hasPurchased) {
-      const newCount = changeCount + 1;
-      setChangeCount(newCount);
-      
-      if (newCount >= 20 && !isEditorLocked) {
-        setIsEditorLocked(true);
-        setIsPricingModalOpen(true);
-        toast.warning(t('reachedFreeEditingLimit'));
-      }
-    }
-  };
-
   const updateSection = (id: string, updates: Partial<SectionData>) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-    
     setSections(prev => prev.map(section => 
       section.id === id ? { ...section, ...updates } : section
     ));
-    
-    // Only count changes for non-text element updates
-    // Text element changes are counted separately when user finishes editing
-    if (!updates.textElements) {
-      incrementChangeCount();
-    }
   };
 
   const addSection = (type: SectionData['type'], template?: string) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-
     const newSection: SectionData = {
       id: `${type}-${Date.now()}`,
       type,
@@ -385,27 +352,15 @@ const Editor = () => {
     }
 
     setSections(prev => [...prev, newSection]);
-    incrementChangeCount();
     toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} ${t('sectionAdded')}`);
   };
 
   const removeSection = (id: string) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-    
     setSections(prev => prev.filter(section => section.id !== id));
-    incrementChangeCount();
     toast.success(t('sectionRemoved'));
   };
 
   const moveSection = (id: string, direction: 'up' | 'down') => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-
     setSections(prev => {
       const index = prev.findIndex(section => section.id === id);
       if (index === -1) return prev;
@@ -417,7 +372,6 @@ const Editor = () => {
       [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
       return newSections;
     });
-    incrementChangeCount();
   };
 
   const handleSectionClick = (sectionId: string) => {
@@ -517,11 +471,6 @@ ${html}
   };
 
   const duplicateSection = (sectionId: string) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-
     const section = sections.find(s => s.id === sectionId);
     if (section) {
       const newSection = {
@@ -530,27 +479,21 @@ ${html}
         content: `${section.content} ${t('copy')}`
       };
       setSections(prev => [...prev, newSection]);
-      incrementChangeCount();
       toast.success(t('sectionDuplicated'));
     }
   };
 
   const handlePublish = () => {
-    setIsPricingModalOpen(true);
+    setIsPublishModalOpen(true);
   };
 
-  const handlePlanSelect = (plan: 'monthly' | 'annual') => {
-    // Simulate successful purchase
-    setHasPurchased(true);
-    setIsEditorLocked(false);
-    setChangeCount(0); // Reset change count after purchase
-    
-    if (plan === 'monthly') {
-      toast.success(t('purchaseSuccessfulMonthly'));
+  const handleDomainSetup = (option: 'custom' | 'subdomain') => {
+    if (option === 'custom') {
+      toast.info('To use a custom domain, you need to: 1) Purchase a domain from providers like Namecheap, GoDaddy, or Google Domains 2) Point it to our hosting service 3) We\'ll help you configure it!');
     } else {
-      toast.success(t('purchaseSuccessfulAnnual'));
+      toast.info('We can provide you with a free subdomain like yoursite.aqallai.com. This will be ready immediately!');
     }
-    // Here you would integrate with your actual payment/domain setup flow
+    setIsPublishModalOpen(false);
   };
 
   const renderContent = () => {
@@ -617,8 +560,8 @@ ${html}
                   <span className="hidden sm:inline">{t('save') || 'Save'}</span>
                 </Button>
                 
-                <Select onValueChange={addSection} disabled={isEditorLocked && !hasPurchased}>
-                  <SelectTrigger className={`w-full md:w-44 text-xs md:text-sm ${isEditorLocked && !hasPurchased ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <Select onValueChange={addSection}>
+                  <SelectTrigger className="w-full md:w-44 text-xs md:text-sm">
                     <SelectValue placeholder={t('addSection')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -662,11 +605,7 @@ ${html}
                 {sections.map((section, index) => (
                   <Card 
                     key={section.id} 
-                    className={`transition-all duration-200 ${
-                      isEditorLocked && !hasPurchased 
-                        ? 'opacity-60 cursor-not-allowed'
-                        : 'cursor-pointer'
-                    } ${
+                    className={`transition-all duration-200 cursor-pointer ${
                       selectedSection === section.id 
                         ? 'ring-2 ring-primary bg-primary/5 border-primary/20' 
                         : 'hover:bg-muted/50 hover:border-muted-foreground/20'
@@ -842,7 +781,7 @@ ${html}
                 onMoveUp={undefined}
                 onMoveDown={undefined}
                 availableSections={sections}
-                onChangeCount={incrementChangeCount}
+                onChangeCount={() => {}}
               />
             </div>
           </div>
@@ -910,25 +849,6 @@ ${html}
                 <span className="hidden sm:inline">{t('backToHome')}</span>
                 <span className="sm:hidden">{t('back')}</span>
               </Button>
-
-              {!hasPurchased && (
-                <div className="flex items-center gap-2">
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    changeCount >= 20 
-                      ? 'bg-red-100 text-red-700 border border-red-200' 
-                      : changeCount >= 15 
-                        ? 'bg-orange-100 text-orange-700 border border-orange-200'
-                        : 'bg-green-100 text-green-700 border border-green-200'
-                  }`}>
-                    {changeCount >= 20 ? t('locked') : `${changeCount}/20 ${t('changesLeft')}`}
-                  </div>
-                  {changeCount >= 15 && changeCount < 20 && (
-                    <span className="text-xs text-orange-600 font-medium">
-                      {20 - changeCount} {t('changesLeft')}
-                    </span>
-                  )}
-                </div>
-              )}
               
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="relative">
@@ -955,40 +875,52 @@ ${html}
 
       <div className="container mx-auto px-4 py-6 relative">
         {renderContent()}
-        
-        {/* Locked Overlay */}
-        {isEditorLocked && !isPricingModalOpen && (
-          <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center">
-            <div className="bg-white rounded-lg p-6 max-w-md mx-4 text-center shadow-xl">
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">🔒</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {t('editorLocked')}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  {t('editorLockedDescription').replace('{changeCount}', changeCount.toString())}
-                </p>
-              </div>
-              <Button 
-                onClick={() => setIsPricingModalOpen(true)}
-                className="w-full"
-              >
-                {t('chooseAPlan')}
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
 
-      <PricingPopup 
-        isOpen={isPricingModalOpen}
-        onClose={() => setIsPricingModalOpen(false)}
-        onSelectPlan={handlePlanSelect}
-        isEditorLocked={isEditorLocked}
-        changeCount={changeCount}
-      />
+      {/* Publish Modal */}
+      <Dialog open={isPublishModalOpen} onOpenChange={setIsPublishModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-primary" />
+              Publish Your Website
+            </DialogTitle>
+            <DialogDescription>
+              Choose how you'd like to publish your website online.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <Button 
+                onClick={() => handleDomainSetup('subdomain')}
+                className="w-full justify-start h-auto p-4"
+                variant="outline"
+              >
+                <div className="text-left">
+                  <div className="font-medium">Free Subdomain</div>
+                  <div className="text-sm text-muted-foreground">yoursite.aqallai.com</div>
+                </div>
+              </Button>
+              
+              <Button 
+                onClick={() => handleDomainSetup('custom')}
+                className="w-full justify-start h-auto p-4"
+                variant="outline"
+              >
+                <div className="text-left">
+                  <div className="font-medium">Custom Domain</div>
+                  <div className="text-sm text-muted-foreground">yourdomain.com</div>
+                </div>
+              </Button>
+            </div>
+            
+            <div className="text-xs text-muted-foreground text-center">
+              Both options include hosting and SSL certificate
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

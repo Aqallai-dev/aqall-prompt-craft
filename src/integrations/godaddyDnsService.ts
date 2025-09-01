@@ -7,10 +7,19 @@ export class GoDaddyDNSService {
     // Use import.meta.env for Vite instead of process.env
     this.apiKey = import.meta.env.VITE_GODADDY_API_KEY || '';
     this.apiSecret = import.meta.env.VITE_GODADDY_API_SECRET || '';
+    
+    // Debug: Log environment variables
+    console.log('GoDaddy DNS Service initialized with:');
+    console.log('API Key:', this.apiKey ? 'Set' : 'Not set');
+    console.log('API Secret:', this.apiSecret ? 'Set' : 'Not set');
   }
 
   async createSubdomain(subdomain: string, ip: string) {
     try {
+      // Debug: Log the IP value
+      console.log('Creating subdomain with IP:', ip);
+      console.log('Environment variable VITE_HOSTING_SERVER_IP:', import.meta.env.VITE_HOSTING_SERVER_IP);
+      
       // For now, we'll simulate the API call since CORS blocks direct calls
       // In production, this should go through your backend API
       console.log(`Would create subdomain: ${subdomain}.aqall.dev pointing to ${ip}`);

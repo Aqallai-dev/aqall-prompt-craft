@@ -147,14 +147,17 @@ export class WebsiteService {
   // Subdomain management methods
   static async createSubdomain(userId: string, websiteId: string, subdomain: string): Promise<any> {
     try {
-      // Check if subdomain is available
-      const { data: existing } = await supabase
+      // Check if subdomain is available - FIXED: removed .single() to avoid 406 error
+      const { data: existing, error: checkError } = await supabase
         .from('subdomains')
         .select('*')
-        .eq('subdomain', subdomain)
-        .single();
+        .eq('subdomain', subdomain);
 
-      if (existing) {
+      if (checkError) {
+        throw checkError;
+      }
+
+      if (existing && existing.length > 0) {
         throw new Error('Subdomain already taken');
       }
 

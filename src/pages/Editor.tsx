@@ -539,7 +539,7 @@ ${html}
 
       // Create DNS record
       const dnsService = new GoDaddyDNSService();
-      await dnsService.createSubdomain(subdomain, 'import.meta.env.VITE_HOSTING_SERVER_IP'); // You'll need to set this
+      await dnsService.createSubdomain(subdomain, import.meta.env.VITE_HOSTING_SERVER_IP); // You'll need to set this
       
       // Update subdomain status to active
       await WebsiteService.updateSubdomainStatus(subdomainRecord.id, 'active');

@@ -245,17 +245,35 @@ const Editor = () => {
   useEffect(() => {
     const prompt = location.state?.prompt;
     const generatedSections = location.state?.generatedSections;
+    const savedSections = location.state?.savedSections;
+    const existingWebsite = location.state?.existingWebsite;
     const companyName = location.state?.companyName;
     const slogan = location.state?.slogan;
     
     console.log("Editor received state:", {
       prompt,
       generatedSections,
+      savedSections,
+      existingWebsite,
       companyName,
       slogan,
       processed: location.state?.processed
     });
     
+          // Handle existing website (saved sections)
+      if (existingWebsite && savedSections && !location.state?.processed) {
+        console.log("Loading existing website with saved sections:", savedSections);
+        setSections(savedSections);
+        toast.success('Existing website loaded successfully!');
+        
+        // Mark as processed to prevent re-triggering
+        if (location.state) {
+          location.state.processed = true;
+        }
+        return;
+      }
+    
+    // Handle AI-generated website
     if (prompt && !location.state?.processed) {
       console.log("Processing prompt:", prompt);
       console.log("Generated sections available:", generatedSections);
@@ -308,7 +326,7 @@ const Editor = () => {
         location.state.processed = true;
       }
     }
-  }, [location.state?.prompt, location.state?.generatedSections, t]);
+  }, [location.state?.prompt, location.state?.generatedSections, location.state?.savedSections, location.state?.existingWebsite, t]);
 
   const incrementChangeCount = () => {
     if (!hasPurchased) {

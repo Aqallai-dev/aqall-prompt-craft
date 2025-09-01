@@ -278,6 +278,13 @@ const translations = {
     describeVision: "Describe Your Vision",
     tellUsWhat: "Tell us what you want to create",
     creatingWebsite: "Creating Your Website...",
+    viewLastWebsite: "View Last Website",
+    previouslySavedWebsite: "You have a previously saved website",
+    websiteWithSections: "You have a previously saved website with {count} sections",
+    yourWebsite: "Your Website",
+    checkingForSavedWebsites: "Checking for saved websites...",
+    pleaseWaitWhileLoading: "Please wait while we load your data",
+    loading: "Loading...",
   },
   ar: {
     // Landing Page  
@@ -545,6 +552,13 @@ const translations = {
     describeVision: "وصف رؤيتك",
     tellUsWhat: "أخبرنا ما تريد إنشاء",
     creatingWebsite: "جاري إنشاء موقعك...",
+    viewLastWebsite: "عرض آخر موقع",
+    previouslySavedWebsite: "لديك موقع محفوظ مسبقاً",
+    websiteWithSections: "لديك موقع محفوظ مسبقاً مع {count} قسم",
+    yourWebsite: "موقعك",
+    checkingForSavedWebsites: "جاري البحث عن المواقع المحفوظة...",
+    pleaseWaitWhileLoading: "يرجى الانتظار بينما نقوم بتحميل بياناتك",
+    loading: "جاري التحميل...",
   },
 };
 

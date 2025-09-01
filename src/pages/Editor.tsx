@@ -9,6 +9,9 @@ import { LivePreview } from "@/components/LivePreview";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SectionTemplates } from "@/components/SectionTemplates";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useAuth } from "@/hooks/useAuth";
+import { WebsiteService } from "@/integrations/supabase/websiteService";
+import { GoDaddyDNSService } from "@/integrations/godaddyDnsService";
 import { 
   ArrowLeft, 
   Settings, 
@@ -36,7 +39,9 @@ import {
   Layers,
   Zap,
   Tablet,
-  Globe
+  Globe,
+  Check,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -178,6 +183,7 @@ const Editor = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
+  const { user } = useAuth();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<'split' | 'fullscreen' | 'newWindow'>('split');
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -185,6 +191,9 @@ const Editor = () => {
   const [showAnimations, setShowAnimations] = useState(true);
   const [activeTab, setActiveTab] = useState('sections');
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [subdomain, setSubdomain] = useState('');
+  const [isSubdomainAvailable, setIsSubdomainAvailable] = useState(false);
+  const [isCreatingSubdomain, setIsCreatingSubdomain] = useState(false);
   const [sections, setSections] = useState<SectionData[]>([
     {
       id: 'navbar',
@@ -487,13 +496,66 @@ ${html}
     setIsPublishModalOpen(true);
   };
 
-  const handleDomainSetup = (option: 'custom' | 'subdomain') => {
-    if (option === 'custom') {
-      toast.info('To use a custom domain, you need to: 1) Purchase a domain from providers like Namecheap, GoDaddy, or Google Domains 2) Point it to our hosting service 3) We\'ll help you configure it!');
-    } else {
-      toast.info('We can provide you with a free subdomain like yoursite.aqallai.com. This will be ready immediately!');
+  // Check subdomain availability
+  const checkSubdomainAvailability = async (subdomain: string) => {
+    if (subdomain.length < 3) {
+      setIsSubdomainAvailable(false);
+      return;
     }
-    setIsPublishModalOpen(false);
+
+    try {
+      const dnsService = new GoDaddyDNSService();
+      const exists = await dnsService.checkSubdomainExists(subdomain);
+      setIsSubdomainAvailable(!exists);
+    } catch (error) {
+      console.error('Error checking subdomain:', error);
+      setIsSubdomainAvailable(false);
+    }
+  };
+
+  // Handle subdomain creation
+  const handleCreateSubdomain = async () => {
+    if (!subdomain || !isSubdomainAvailable || !user) return;
+
+    setIsCreatingSubdomain(true);
+    try {
+      // First, save the website to get a website ID
+      const websiteData = {
+        user_id: user.id,
+        sections: sections,
+        is_published: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const savedWebsite = await WebsiteService.saveWebsite(websiteData);
+      
+      // Create subdomain in database
+      const subdomainRecord = await WebsiteService.createSubdomain(
+        user.id, 
+        savedWebsite.id, 
+        subdomain
+      );
+
+      // Create DNS record
+      const dnsService = new GoDaddyDNSService();
+      await dnsService.createSubdomain(subdomain, 'import.meta.env.VITE_HOSTING_SERVER_IP'); // You'll need to set this
+      
+      // Update subdomain status to active
+      await WebsiteService.updateSubdomainStatus(subdomainRecord.id, 'active');
+      
+      toast.success(`Subdomain ${subdomain}.aqall.dev created successfully!`);
+      setIsPublishModalOpen(false);
+      
+      // Show the published URL
+      toast.info(`Your website is now live at: https://${subdomain}.aqall.dev`);
+      
+    } catch (error) {
+      console.error('Error creating subdomain:', error);
+      toast.error('Failed to create subdomain. Please try again.');
+    } finally {
+      setIsCreatingSubdomain(false);
+    }
   };
 
   const renderContent = () => {
@@ -886,37 +948,68 @@ ${html}
               Publish Your Website
             </DialogTitle>
             <DialogDescription>
-              Choose how you'd like to publish your website online.
+              Create a subdomain for your website on aqall.dev
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="space-y-3">
-              <Button 
-                onClick={() => handleDomainSetup('subdomain')}
-                className="w-full justify-start h-auto p-4"
-                variant="outline"
-              >
-                <div className="text-left">
-                  <div className="font-medium">Free Subdomain</div>
-                  <div className="text-sm text-muted-foreground">yoursite.aqallai.com</div>
-                </div>
-              </Button>
+            <div>
+              <Label htmlFor="subdomain">Subdomain</Label>
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  id="subdomain"
+                  value={subdomain}
+                  onChange={(e) => {
+                    setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                    checkSubdomainAvailability(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                  }}
+                  placeholder="mywebsite"
+                  className="flex-1"
+                />
+                <span className="text-sm text-muted-foreground">.aqall.dev</span>
+              </div>
               
-              <Button 
-                onClick={() => handleDomainSetup('custom')}
-                className="w-full justify-start h-auto p-4"
-                variant="outline"
-              >
-                <div className="text-left">
-                  <div className="font-medium">Custom Domain</div>
-                  <div className="text-sm text-muted-foreground">yourdomain.com</div>
+              {subdomain && (
+                <div className="mt-2 text-sm flex items-center gap-2">
+                  {isSubdomainAvailable ? (
+                    <>
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-green-600">Available</span>
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-4 h-4 text-red-600" />
+                      <span className="text-red-600">Taken</span>
+                    </>
+                  )}
                 </div>
-              </Button>
+              )}
+              
+              <div className="mt-2 text-xs text-muted-foreground">
+                Only letters, numbers, and hyphens allowed. Minimum 3 characters.
+              </div>
             </div>
             
+            <Button 
+              onClick={handleCreateSubdomain}
+              disabled={!subdomain || !isSubdomainAvailable || isCreatingSubdomain}
+              className="w-full"
+            >
+              {isCreatingSubdomain ? (
+                <>
+                  <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4 mr-2" />
+                  Create {subdomain}.aqall.dev
+                </>
+              )}
+            </Button>
+            
             <div className="text-xs text-muted-foreground text-center">
-              Both options include hosting and SSL certificate
+              Your website will be live at https://{subdomain || 'yoursite'}.aqall.dev
             </div>
           </div>
         </DialogContent>

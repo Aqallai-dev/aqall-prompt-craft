@@ -143,4 +143,95 @@ export class WebsiteService {
       throw error;
     }
   }
-} 
+
+  // Subdomain management methods
+  static async createSubdomain(userId: string, websiteId: string, subdomain: string): Promise<any> {
+    try {
+      // Check if subdomain is available
+      const { data: existing } = await supabase
+        .from('subdomains')
+        .select('*')
+        .eq('subdomain', subdomain)
+        .single();
+
+      if (existing) {
+        throw new Error('Subdomain already taken');
+      }
+
+      // Create subdomain record
+      const { data, error } = await supabase
+        .from('subdomains')
+        .insert({
+          user_id: userId,
+          website_id: websiteId,
+          subdomain: subdomain,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error creating subdomain:', error);
+      throw error;
+    }
+  }
+
+  static async getSubdomains(userId: string): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('subdomains')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching subdomains:', error);
+      throw error;
+    }
+  }
+
+  static async updateSubdomainStatus(subdomainId: string, status: 'pending' | 'active' | 'failed'): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('subdomains')
+        .update({ 
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subdomainId);
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error updating subdomain status:', error);
+      throw error;
+    }
+  }
+
+  static async deleteSubdomain(subdomainId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('subdomains')
+        .delete()
+        .eq('id', subdomainId);
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error deleting subdomain:', error);
+      throw error;
+    }
+  }
+}

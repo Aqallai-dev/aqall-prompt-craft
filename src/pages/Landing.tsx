@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,16 +6,58 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, Wand2, LogIn, UserPlus, LogOut, ArrowRight, Zap, Palette, Smartphone, Mail, MapPin, MessageCircle, Loader2 } from "lucide-react";
+import { Sparkles, Wand2, LogIn, UserPlus, LogOut, ArrowRight, Zap, Palette, Smartphone, Mail, MapPin, MessageCircle, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { OpenAIService } from "@/integrations/openai";
+import { WebsiteService } from "@/integrations/supabase/websiteService";
 
 const Landing = () => {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [existingWebsite, setExistingWebsite] = useState<any>(null);
+  const [isCheckingWebsite, setIsCheckingWebsite] = useState(false);
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
   const { user, signOut } = useAuth();
+
+  // Check for existing website when user logs in
+  useEffect(() => {
+    const checkExistingWebsite = async () => {
+      if (user && !existingWebsite && !isCheckingWebsite) {
+        setIsCheckingWebsite(true);
+        try {
+          console.log("Landing: Checking for existing website for user:", user.id);
+          const website = await WebsiteService.getUserWebsite(user.id);
+          console.log("Landing: Found existing website:", website);
+          setExistingWebsite(website);
+        } catch (error) {
+          console.error('Error checking for existing website:', error);
+        } finally {
+          setIsCheckingWebsite(false);
+        }
+      }
+    };
+
+    checkExistingWebsite();
+  }, [user, existingWebsite, isCheckingWebsite]);
+
+  const handleViewExistingWebsite = () => {
+    if (existingWebsite) {
+      console.log("Landing: Viewing existing website:", existingWebsite);
+      console.log("Landing: Saved sections:", existingWebsite.sections);
+      
+      navigate('/editor', {
+        state: {
+          existingWebsite: true,
+          savedSections: existingWebsite.sections,
+          companyName: existingWebsite.company_name,
+          slogan: existingWebsite.slogan,
+          prompt: existingWebsite.prompt,
+          processed: false // Set to false so it gets processed
+        }
+      });
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -242,47 +284,117 @@ const Landing = () => {
           {/* Main Action Card */}
           <Card className="backdrop-blur-xl bg-white/5 border-white/10 shadow-2xl mx-4 md:mx-0">
             <CardContent className="p-6 md:p-8 lg:p-10">
-              <div className="space-y-6 md:space-y-8">
-                <div className="flex items-center gap-3 md:gap-4 text-white">
-                  <div className="p-2 md:p-3 bg-gradient-to-r from-[#384f51] to-teal-500 rounded-xl">
-                    <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
+              {user && isCheckingWebsite ? (
+                // Show loading state while checking for existing website
+                <div className="space-y-6 md:space-y-8">
+                  <div className="flex items-center gap-3 md:gap-4 text-white">
+                    <div className="p-2 md:p-3 bg-gradient-to-r from-[#384f51] to-teal-500 rounded-xl">
+                      <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg md:text-2xl font-bold">
+                        {t('checkingForSavedWebsites')}
+                      </h3>
+                      <p className="text-teal-200/80 text-xs md:text-sm">
+                        {t('pleaseWaitWhileLoading')}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg md:text-2xl font-bold">
-                      {t('describeVision')}
-                    </h3>
-                    <p className="text-teal-200/80 text-xs md:text-sm">
-                      {t('tellUsWhat')}
-                    </p>
+                  
+                  <div className="bg-white/5 border border-white/20 rounded-xl p-6 text-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-teal-300 mx-auto mb-4" />
+                    <p className="text-teal-200/60 text-sm">{t('loading')}</p>
                   </div>
                 </div>
-                
-                <Textarea
-                  placeholder={t('promptPlaceholder')}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[100px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"
-                  dir={isRTL ? 'rtl' : 'ltr'}
-                />
-                
-                <Button 
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full md:w-auto bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      {t('generating')}...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      {t('generateButton')}
-                    </>
-                  )}
-                </Button>
-              </div>
+              ) : user && existingWebsite ? (
+                // Show existing website view for logged-in users with saved websites
+                <div className="space-y-6 md:space-y-8">
+                  <div className="flex items-center gap-3 md:gap-4 text-white">
+                    <div className="p-2 md:p-3 bg-gradient-to-r from-[#384f51] to-teal-500 rounded-xl">
+                      <Eye className="w-5 h-5 md:w-6 md:h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg md:text-2xl font-bold">
+                        {t('previouslySavedWebsite')}
+                      </h3>
+                      <p className="text-teal-200/80 text-xs md:text-sm">
+                        {t('viewLastWebsite')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 border border-white/20 rounded-xl p-6 text-center">
+                    <div className="space-y-4">
+                      <div className="w-16 h-16 bg-gradient-to-r from-[#384f51] to-teal-500 rounded-full flex items-center justify-center mx-auto">
+                        <Eye className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-semibold text-white mb-2">
+                          {existingWebsite.company_name || t('yourWebsite')}
+                        </h4>
+                        {existingWebsite.slogan && (
+                          <p className="text-teal-200/80 text-sm mb-4">
+                            {existingWebsite.slogan}
+                          </p>
+                        )}
+                        <p className="text-teal-200/60 text-sm mb-6">
+                          {t('websiteWithSections').replace('{count}', (existingWebsite.sections?.length || 0).toString())}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={handleViewExistingWebsite}
+                        className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                      >
+                        <Eye className="w-5 h-5 mr-2" />
+                        {t('viewLastWebsite')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Show prompt box for new users or users without saved websites
+                <div className="space-y-6 md:space-y-8">
+                  <div className="flex items-center gap-3 md:gap-4 text-white">
+                    <div className="p-2 md:p-3 bg-gradient-to-r from-[#384f51] to-teal-500 rounded-xl">
+                      <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg md:text-2xl font-bold">
+                        {t('describeVision')}
+                      </h3>
+                      <p className="text-teal-200/80 text-xs md:text-sm">
+                        {t('tellUsWhat')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Textarea
+                    placeholder={t('promptPlaceholder')}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[100px] md:min-h-[140px] resize-none bg-white/10 border-white/20 text-white placeholder:text-teal-200/60 text-base md:text-lg leading-relaxed"
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                  />
+                  
+                  <Button 
+                    onClick={handleGenerate}
+                    disabled={isGenerating || !prompt.trim()}
+                    className="w-full md:w-auto bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        {t('generating')}...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        {t('generateButton')}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 

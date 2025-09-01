@@ -610,33 +610,11 @@ ${html}
                 <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
                   <Edit3 className="w-4 h-4 md:w-5 md:w-5 text-primary" />
                 </div>
-                <div>
-                  <h2 className="text-base md:text-lg font-semibold">{t('websiteBuilder')}</h2>
-                  <p className="text-xs md:text-sm text-muted-foreground">{t('advancedWebsiteCreationTools')}</p>
-                </div>
+
               </div>
               
               <div className="flex items-center gap-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      {t('templates')}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>{t('sectionTemplates')}</DialogTitle>
-                      <DialogDescription>
-                        {t('templatesDescription')}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <SectionTemplates onSelectTemplate={(template) => {
-                      setSections(prev => [...prev, template]);
-                      toast.success(`${template.type} ${t('sectionAddedFromTemplate')}`);
-                    }} />
-                  </DialogContent>
-                </Dialog>
+
                 
                 <Select onValueChange={addSection} disabled={isEditorLocked && !hasPurchased}>
                   <SelectTrigger className={`w-full md:w-44 text-xs md:text-sm ${isEditorLocked && !hasPurchased ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -662,9 +640,7 @@ ${html}
               </div>
             </div>
             
-            <div className="text-xs text-muted-foreground bg-muted/50 p-2 md:p-3 rounded-md">
-              <strong>{t('proTip')}:</strong> {t('proTipText')}
-            </div>
+
             
 
           </div>
@@ -684,24 +660,7 @@ ${html}
                   <h3 className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
                     {t('currentSections')} ({sections.length})
                   </h3>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowGrid(!showGrid)}
-                      className={`h-7 w-7 p-0 ${showGrid ? 'bg-primary/10 text-primary' : ''}`}
-                    >
-                      <Grid3X3 className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowAnimations(!showAnimations)}
-                      className={`h-7 w-7 p-0 ${showAnimations ? 'bg-primary/10 text-primary' : ''}`}
-                    >
-                      <Zap className="w-3 h-3" />
-                    </Button>
-                  </div>
+
                 </div>
                 
                 {sections.map((section, index) => (
@@ -844,14 +803,7 @@ ${html}
                         <Monitor className="w-4 h-4 mr-1" />
                         {t('desktop')}
                       </Button>
-                      <Button
-                        variant={deviceMode === 'tablet' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setDeviceMode('tablet')}
-                      >
-                        <Tablet className="w-4 h-4 mr-1" />
-                        {t('tablet')}
-                      </Button>
+
                       <Button
                         variant={deviceMode === 'mobile' ? 'default' : 'outline'}
                         size="sm"
@@ -863,15 +815,7 @@ ${html}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm">{t('showGrid')}</Label>
-                    <Switch checked={showGrid} onCheckedChange={setShowGrid} />
-                  </div>
 
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm">{t('showAnimations')}</Label>
-                    <Switch checked={showAnimations} onCheckedChange={setShowAnimations} />
-                  </div>
                 </div>
               </div>
             </TabsContent>
@@ -938,15 +882,7 @@ ${html}
                   <Maximize2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                   <span className="hidden sm:inline">{t('fullscreen')}</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={openPreviewInNewWindow}
-                  className="text-xs h-8 md:h-9 border-2"
-                >
-                  <ExternalLink className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                  <span className="hidden sm:inline">{t('newWindow')}</span>
-                </Button>
+
               </div>
             </div>
           </div>

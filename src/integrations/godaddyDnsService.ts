@@ -1,7 +1,7 @@
 export class GoDaddyDNSService {
   private apiKey: string;
   private apiSecret: string;
-  private baseUrl = 'https://api.godaddy.com/v1';
+  private baseUrl = 'http://localhost:3001/api/dns';
   private domain = 'aqall.dev';
 
   constructor() {
@@ -13,6 +13,7 @@ export class GoDaddyDNSService {
     console.log('GoDaddy DNS Service initialized with:');
     console.log('API Key:', this.apiKey ? 'Set' : 'Not set');
     console.log('API Secret:', this.apiSecret ? 'Set' : 'Not set');
+    console.log('Backend API:', this.baseUrl);
   }
 
   private async makeRequest(endpoint: string, method: string = 'GET', data?: any) {
@@ -21,7 +22,6 @@ export class GoDaddyDNSService {
     const options: RequestInit = {
       method,
       headers: {
-        'Authorization': `sso-key ${this.apiKey}:${this.apiSecret}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
@@ -32,16 +32,17 @@ export class GoDaddyDNSService {
     }
 
     try {
+      console.log(`Making ${method} request to: ${url}`);
       const response = await fetch(url, options);
       
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`GoDaddy API Error: ${response.status} - ${errorText}`);
+        throw new Error(`Backend API Error: ${response.status} - ${errorText}`);
       }
 
       return await response.json();
     } catch (error) {
-      console.error('GoDaddy API Request failed:', error);
+      console.error('Backend API Request failed:', error);
       throw error;
     }
   }
@@ -51,44 +52,13 @@ export class GoDaddyDNSService {
       console.log('Creating subdomain with IP:', ip);
       console.log('Environment variable VITE_HOSTING_SERVER_IP:', import.meta.env.VITE_HOSTING_SERVER_IP);
       
-      if (!this.apiKey || !this.apiSecret) {
-        throw new Error('GoDaddy API credentials not configured');
-      }
-
-      // Check if subdomain already exists
-      const existingRecords = await this.getDNSRecords();
-      const existingRecord = existingRecords.find((record: any) => 
-        record.name === subdomain && record.type === 'A'
-      );
-
-      if (existingRecord) {
-        console.log(`Subdomain ${subdomain} already exists, updating...`);
-        // Update existing record
-        await this.makeRequest(
-          `/domains/${this.domain}/records/A/${subdomain}`,
-          'PUT',
-          [{
-            data: ip,
-            ttl: 3600
-          }]
-        );
-      } else {
-        console.log(`Creating new subdomain: ${subdomain}.aqall.dev pointing to ${ip}`);
-        // Create new A record
-        await this.makeRequest(
-          `/domains/${this.domain}/records`,
-          'PATCH',
-          [{
-            type: 'A',
-            name: subdomain,
-            data: ip,
-            ttl: 3600
-          }]
-        );
-      }
+      const result = await this.makeRequest('/create', 'POST', {
+        subdomain,
+        ip
+      });
       
-      console.log(`Successfully created/updated subdomain: ${subdomain}.aqall.dev`);
-      return { success: true, subdomain: `${subdomain}.aqall.dev` };
+      console.log(`✅ Successfully created subdomain: ${result.subdomain}`);
+      return result;
     } catch (error) {
       console.error('Error creating subdomain:', error);
       throw error;
@@ -99,18 +69,10 @@ export class GoDaddyDNSService {
     try {
       console.log(`Deleting subdomain: ${subdomain}.aqall.dev`);
       
-      if (!this.apiKey || !this.apiSecret) {
-        throw new Error('GoDaddy API credentials not configured');
-      }
-
-      // Delete the A record
-      await this.makeRequest(
-        `/domains/${this.domain}/records/A/${subdomain}`,
-        'DELETE'
-      );
+      const result = await this.makeRequest(`/${subdomain}`, 'DELETE');
       
-      console.log(`Successfully deleted subdomain: ${subdomain}.aqall.dev`);
-      return { success: true };
+      console.log(`✅ Successfully deleted subdomain: ${subdomain}.aqall.dev`);
+      return result;
     } catch (error) {
       console.error('Error deleting subdomain:', error);
       throw error;
@@ -119,16 +81,11 @@ export class GoDaddyDNSService {
 
   async getDNSRecords() {
     try {
-      console.log('Fetching DNS records from GoDaddy');
+      console.log('Fetching DNS records from backend API');
       
-      if (!this.apiKey || !this.apiSecret) {
-        console.log('GoDaddy API credentials not configured, returning empty array');
-        return [];
-      }
-
-      const records = await this.makeRequest(`/domains/${this.domain}/records`);
-      console.log('Fetched DNS records:', records.length);
-      return records;
+      const result = await this.makeRequest('/records');
+      console.log(`Fetched ${result.records.length} DNS records`);
+      return result.records;
     } catch (error) {
       console.error('Error fetching DNS records:', error);
       return []; // Return empty array on error
@@ -137,11 +94,9 @@ export class GoDaddyDNSService {
 
   async checkSubdomainExists(subdomain: string) {
     try {
-      const records = await this.getDNSRecords();
-      const aRecords = records.filter((record: any) => record.type === 'A');
-      const exists = aRecords.some((record: any) => record.name === subdomain);
-      console.log(`Subdomain ${subdomain} exists: ${exists}`);
-      return exists;
+      const result = await this.makeRequest(`/check/${subdomain}`);
+      console.log(`Subdomain ${subdomain} exists: ${result.exists}`);
+      return result.exists;
     } catch (error) {
       console.error('Error checking subdomain:', error);
       return false; // Return false on error so subdomain appears available

@@ -387,10 +387,35 @@ const Editor = () => {
     setSelectedSection(sectionId);
   };
 
-  const handleSave = () => {
-    // Here you would implement the save functionality
-    // For now, just show a success message
-    toast.success(t('websiteSavedSuccessfully') || 'Website saved successfully!');
+  const handleSave = async () => {
+    if (!user) {
+      toast.error('You must be logged in to save your website');
+      return;
+    }
+
+    try {
+      // Show loading state
+      toast.loading('Saving website...', { id: 'save-website' });
+
+      // Prepare website data
+      const websiteData = {
+        user_id: user.id,
+        sections: sections,
+        is_published: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      // Save to backend
+      await WebsiteService.saveWebsite(websiteData);
+      
+      // Show success message
+      toast.success(t('websiteSavedSuccessfully') || 'Website saved successfully!', { id: 'save-website' });
+      
+    } catch (error) {
+      console.error('Error saving website:', error);
+      toast.error('Failed to save website. Please try again.', { id: 'save-website' });
+    }
   };
 
   const openPreviewInNewWindow = () => {

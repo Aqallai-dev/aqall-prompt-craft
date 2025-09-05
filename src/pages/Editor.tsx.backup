@@ -9,6 +9,9 @@ import { LivePreview } from "@/components/LivePreview";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SectionTemplates } from "@/components/SectionTemplates";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useAuth } from "@/hooks/useAuth";
+import { WebsiteService } from "@/integrations/supabase/websiteService";
+import { GoDaddyDNSService } from "@/integrations/godaddyDnsService";
 import { 
   ArrowLeft, 
   Settings, 
@@ -36,7 +39,9 @@ import {
   Layers,
   Zap,
   Tablet,
-  Globe
+  Globe,
+  Check,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +52,6 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import PricingPopup from "@/components/PricingPopup";
 
 export interface TextElement {
   id: string;
@@ -179,16 +183,17 @@ const Editor = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
+  const { user } = useAuth();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<'split' | 'fullscreen' | 'newWindow'>('split');
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showGrid, setShowGrid] = useState(false);
   const [showAnimations, setShowAnimations] = useState(true);
   const [activeTab, setActiveTab] = useState('sections');
-  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
-  const [changeCount, setChangeCount] = useState(0);
-  const [isEditorLocked, setIsEditorLocked] = useState(false);
-  const [hasPurchased, setHasPurchased] = useState(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [subdomain, setSubdomain] = useState('');
+  const [isSubdomainAvailable, setIsSubdomainAvailable] = useState(false);
+  const [isCreatingSubdomain, setIsCreatingSubdomain] = useState(false);
   const [sections, setSections] = useState<SectionData[]>([
     {
       id: 'navbar',
@@ -328,42 +333,13 @@ const Editor = () => {
     }
   }, [location.state?.prompt, location.state?.generatedSections, location.state?.savedSections, location.state?.existingWebsite, t]);
 
-  const incrementChangeCount = () => {
-    if (!hasPurchased) {
-      const newCount = changeCount + 1;
-      setChangeCount(newCount);
-      
-      if (newCount >= 20 && !isEditorLocked) {
-        setIsEditorLocked(true);
-        setIsPricingModalOpen(true);
-        toast.warning(t('reachedFreeEditingLimit'));
-      }
-    }
-  };
-
   const updateSection = (id: string, updates: Partial<SectionData>) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-    
     setSections(prev => prev.map(section => 
       section.id === id ? { ...section, ...updates } : section
     ));
-    
-    // Only count changes for non-text element updates
-    // Text element changes are counted separately when user finishes editing
-    if (!updates.textElements) {
-      incrementChangeCount();
-    }
   };
 
   const addSection = (type: SectionData['type'], template?: string) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-
     const newSection: SectionData = {
       id: `${type}-${Date.now()}`,
       type,
@@ -385,27 +361,15 @@ const Editor = () => {
     }
 
     setSections(prev => [...prev, newSection]);
-    incrementChangeCount();
     toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} ${t('sectionAdded')}`);
   };
 
   const removeSection = (id: string) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-    
     setSections(prev => prev.filter(section => section.id !== id));
-    incrementChangeCount();
     toast.success(t('sectionRemoved'));
   };
 
   const moveSection = (id: string, direction: 'up' | 'down') => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-
     setSections(prev => {
       const index = prev.findIndex(section => section.id === id);
       if (index === -1) return prev;
@@ -417,11 +381,16 @@ const Editor = () => {
       [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
       return newSections;
     });
-    incrementChangeCount();
   };
 
   const handleSectionClick = (sectionId: string) => {
     setSelectedSection(sectionId);
+  };
+
+  const handleSave = () => {
+    // Here you would implement the save functionality
+    // For now, just show a success message
+    toast.success(t('websiteSavedSuccessfully') || 'Website saved successfully!');
   };
 
   const openPreviewInNewWindow = () => {
@@ -511,11 +480,6 @@ ${html}
   };
 
   const duplicateSection = (sectionId: string) => {
-    if (isEditorLocked && !hasPurchased) {
-      toast.error(t('pleaseCompletePurchase'));
-      return;
-    }
-
     const section = sections.find(s => s.id === sectionId);
     if (section) {
       const newSection = {
@@ -524,27 +488,74 @@ ${html}
         content: `${section.content} ${t('copy')}`
       };
       setSections(prev => [...prev, newSection]);
-      incrementChangeCount();
       toast.success(t('sectionDuplicated'));
     }
   };
 
   const handlePublish = () => {
-    setIsPricingModalOpen(true);
+    setIsPublishModalOpen(true);
   };
 
-  const handlePlanSelect = (plan: 'monthly' | 'annual') => {
-    // Simulate successful purchase
-    setHasPurchased(true);
-    setIsEditorLocked(false);
-    setChangeCount(0); // Reset change count after purchase
-    
-    if (plan === 'monthly') {
-      toast.success(t('purchaseSuccessfulMonthly'));
-    } else {
-      toast.success(t('purchaseSuccessfulAnnual'));
+  // Check subdomain availability
+  const checkSubdomainAvailability = async (subdomain: string) => {
+    if (subdomain.length < 3) {
+      setIsSubdomainAvailable(false);
+      return;
     }
-    // Here you would integrate with your actual payment/domain setup flow
+
+    try {
+      const dnsService = new GoDaddyDNSService();
+      const exists = await dnsService.checkSubdomainExists(subdomain);
+      setIsSubdomainAvailable(!exists);
+    } catch (error) {
+      console.error('Error checking subdomain:', error);
+      setIsSubdomainAvailable(false);
+    }
+  };
+
+  // Handle subdomain creation
+  const handleCreateSubdomain = async () => {
+    if (!subdomain || !isSubdomainAvailable || !user) return;
+
+    setIsCreatingSubdomain(true);
+    try {
+      // First, save the website to get a website ID
+      const websiteData = {
+        user_id: user.id,
+        sections: sections,
+        is_published: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const savedWebsite = await WebsiteService.saveWebsite(websiteData);
+      
+      // Create subdomain in database
+      const subdomainRecord = await WebsiteService.createSubdomain(
+        user.id, 
+        savedWebsite.id, 
+        subdomain
+      );
+
+      // Create DNS record
+      const dnsService = new GoDaddyDNSService();
+      await dnsService.createSubdomain(subdomain, import.meta.env.VITE_HOSTING_SERVER_IP); // You'll need to set this
+      
+      // Update subdomain status to active
+      await WebsiteService.updateSubdomainStatus(subdomainRecord.id, 'active');
+      
+      toast.success(`Subdomain ${subdomain}.aqall.dev created successfully!`);
+      setIsPublishModalOpen(false);
+      
+      // Show the published URL
+      toast.info(`Your website is now live at: https://${subdomain}.aqall.dev`);
+      
+    } catch (error) {
+      console.error('Error creating subdomain:', error);
+      toast.error('Failed to create subdomain. Please try again.');
+    } finally {
+      setIsCreatingSubdomain(false);
+    }
   };
 
   const renderContent = () => {
@@ -593,31 +604,26 @@ ${html}
     return (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 h-[calc(100vh-140px)]">
         {/* Left Panel - Enhanced Controls */}
-        <div className="lg:col-span-4 space-y-4 md:space-y-6 overflow-y-auto">
+        <div className="lg:col-span-3 space-y-4 md:space-y-6 overflow-y-auto">
           {/* Enhanced Header Section */}
           <div className="bg-card rounded-lg border p-4 md:p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 mb-4">
               <div className="flex items-center gap-2 md:gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/')}
-                  className="text-xs mr-2"
-                >
-                  <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                  Back
-                </Button>
-                <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
-                  <Edit3 className="w-4 h-4 md:w-5 md:w-5 text-primary" />
-                </div>
-
+                {/* Removed the non-pressable edit logo */}
               </div>
               
               <div className="flex items-center gap-2">
-
+                <Button
+                  onClick={handleSave}
+                  className="bg-primary hover:bg-primary/90 text-white text-xs md:text-sm"
+                  size="sm"
+                >
+                  <Save className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">{t('save') || 'Save'}</span>
+                </Button>
                 
-                <Select onValueChange={addSection} disabled={isEditorLocked && !hasPurchased}>
-                  <SelectTrigger className={`w-full md:w-44 text-xs md:text-sm ${isEditorLocked && !hasPurchased ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <Select onValueChange={addSection}>
+                  <SelectTrigger className="w-full md:w-44 text-xs md:text-sm">
                     <SelectValue placeholder={t('addSection')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -639,10 +645,6 @@ ${html}
                 </Select>
               </div>
             </div>
-            
-
-            
-
           </div>
 
           {/* Enhanced Tabs */}
@@ -660,24 +662,19 @@ ${html}
                   <h3 className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
                     {t('currentSections')} ({sections.length})
                   </h3>
-
                 </div>
                 
                 {sections.map((section, index) => (
                   <Card 
                     key={section.id} 
-                    className={`transition-all duration-200 ${
-                      isEditorLocked && !hasPurchased 
-                        ? 'opacity-60 cursor-not-allowed'
-                        : 'cursor-pointer'
-                    } ${
+                    className={`transition-all duration-200 cursor-pointer ${
                       selectedSection === section.id 
                         ? 'ring-2 ring-primary bg-primary/5 border-primary/20' 
                         : 'hover:bg-muted/50 hover:border-muted-foreground/20'
                     }`}
                     onClick={() => handleSectionClick(section.id)}
                   >
-                    <CardContent className="p-3 md:p-4">
+                    <CardContent className="p-2 md:p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
                           <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full flex-shrink-0 ${
@@ -689,11 +686,6 @@ ${html}
                               <span className="text-xs text-muted-foreground bg-muted px-1.5 md:px-2 py-0.5 rounded flex-shrink-0">
                                 {index + 1}
                               </span>
-                              {section.layout && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {section.layout}
-                                </Badge>
-                              )}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">
                               {section.content.split(' | ')[0] || t('clickToEditContent')}
@@ -709,7 +701,7 @@ ${html}
                               e.stopPropagation();
                               duplicateSection(section.id);
                             }}
-                            className="h-7 w-7 md:h-8 md:w-8 p-0"
+                            className="h-6 w-6 md:h-7 md:w-7 p-0"
                           >
                             <Layers className="w-3 h-3" />
                           </Button>
@@ -721,7 +713,7 @@ ${html}
                                 e.stopPropagation();
                                 moveSection(section.id, 'up');
                               }}
-                              className="h-7 w-7 md:h-8 md:w-8 p-0"
+                              className="h-6 w-6 md:h-7 md:w-7 p-0"
                             >
                               <MoveUp className="w-3 h-3" />
                             </Button>
@@ -734,7 +726,7 @@ ${html}
                                 e.stopPropagation();
                                 moveSection(section.id, 'down');
                               }}
-                              className="h-7 w-7 md:h-8 md:w-8 p-0"
+                              className="h-6 w-6 md:h-7 md:w-7 p-0"
                             >
                               <MoveDown className="w-3 h-3" />
                             </Button>
@@ -746,7 +738,7 @@ ${html}
                               e.stopPropagation();
                               removeSection(section.id);
                             }}
-                            className="h-7 w-7 md:h-8 md:w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="h-6 w-6 md:h-7 md:w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
@@ -756,8 +748,6 @@ ${html}
                   </Card>
                 ))}
               </div>
-
-
             </TabsContent>
 
             <TabsContent value="styling" className="space-y-4">
@@ -787,8 +777,6 @@ ${html}
                       </Button>
                     </div>
                   </div>
-
-
                 </div>
               </div>
             </TabsContent>
@@ -833,7 +821,7 @@ ${html}
 
         {/* Middle Panel - Section Editor (when section is selected) */}
         {selectedSection && (
-          <div className="lg:col-span-3 bg-card rounded-lg border overflow-hidden">
+          <div className="lg:col-span-4 bg-card rounded-lg border overflow-hidden">
             <div className="p-3 md:p-4 border-b bg-muted/30">
               <div className="flex items-center gap-2">
                 <div className="p-1 md:p-1.5 bg-primary/10 rounded">
@@ -855,14 +843,14 @@ ${html}
                 onMoveUp={undefined}
                 onMoveDown={undefined}
                 availableSections={sections}
-                onChangeCount={incrementChangeCount}
+                onChangeCount={() => {}}
               />
             </div>
           </div>
         )}
 
         {/* Right Panel - Enhanced Live Preview */}
-        <div className={`bg-card rounded-lg border overflow-hidden ${selectedSection ? 'lg:col-span-5' : 'lg:col-span-8'}`}>
+        <div className={`bg-card rounded-lg border overflow-hidden ${selectedSection ? 'lg:col-span-5' : 'lg:col-span-9'}`}>
           <div className="p-3 md:p-4 border-b bg-muted/30">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-0">
               <div className="flex items-center gap-2 md:gap-3">
@@ -885,7 +873,6 @@ ${html}
                   <Maximize2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                   <span className="hidden sm:inline">{t('fullscreen')}</span>
                 </Button>
-
               </div>
             </div>
           </div>
@@ -924,25 +911,6 @@ ${html}
                 <span className="hidden sm:inline">{t('backToHome')}</span>
                 <span className="sm:hidden">{t('back')}</span>
               </Button>
-
-              {!hasPurchased && (
-                <div className="flex items-center gap-2">
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    changeCount >= 20 
-                      ? 'bg-red-100 text-red-700 border border-red-200' 
-                      : changeCount >= 15 
-                        ? 'bg-orange-100 text-orange-700 border border-orange-200'
-                        : 'bg-green-100 text-green-700 border border-green-200'
-                  }`}>
-                    {changeCount >= 20 ? t('locked') : `${changeCount}/20 ${t('changesLeft')}`}
-                  </div>
-                  {changeCount >= 15 && changeCount < 20 && (
-                    <span className="text-xs text-orange-600 font-medium">
-                      {20 - changeCount} {t('changesLeft')}
-                    </span>
-                  )}
-                </div>
-              )}
               
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="relative">
@@ -969,40 +937,83 @@ ${html}
 
       <div className="container mx-auto px-4 py-6 relative">
         {renderContent()}
-        
-        {/* Locked Overlay */}
-        {isEditorLocked && !isPricingModalOpen && (
-          <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center">
-            <div className="bg-white rounded-lg p-6 max-w-md mx-4 text-center shadow-xl">
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">🔒</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {t('editorLocked')}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  {t('editorLockedDescription').replace('{changeCount}', changeCount.toString())}
-                </p>
-              </div>
-              <Button 
-                onClick={() => setIsPricingModalOpen(true)}
-                className="w-full"
-              >
-                {t('chooseAPlan')}
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
 
-      <PricingPopup 
-        isOpen={isPricingModalOpen}
-        onClose={() => setIsPricingModalOpen(false)}
-        onSelectPlan={handlePlanSelect}
-        isEditorLocked={isEditorLocked}
-        changeCount={changeCount}
-      />
+      {/* Publish Modal */}
+      <Dialog open={isPublishModalOpen} onOpenChange={setIsPublishModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-primary" />
+              Publish Your Website
+            </DialogTitle>
+            <DialogDescription>
+              Create a subdomain for your website on aqall.dev
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="subdomain">Subdomain</Label>
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  id="subdomain"
+                  value={subdomain}
+                  onChange={(e) => {
+                    setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                    checkSubdomainAvailability(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                  }}
+                  placeholder="mywebsite"
+                  className="flex-1"
+                />
+                <span className="text-sm text-muted-foreground">.aqall.dev</span>
+              </div>
+              
+              {subdomain && (
+                <div className="mt-2 text-sm flex items-center gap-2">
+                  {isSubdomainAvailable ? (
+                    <>
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-green-600">Available</span>
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-4 h-4 text-red-600" />
+                      <span className="text-red-600">Taken</span>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              <div className="mt-2 text-xs text-muted-foreground">
+                Only letters, numbers, and hyphens allowed. Minimum 3 characters.
+              </div>
+            </div>
+            
+            <Button 
+              onClick={handleCreateSubdomain}
+              disabled={!subdomain || !isSubdomainAvailable || isCreatingSubdomain}
+              className="w-full"
+            >
+              {isCreatingSubdomain ? (
+                <>
+                  <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4 mr-2" />
+                  Create {subdomain}.aqall.dev
+                </>
+              )}
+            </Button>
+            
+            <div className="text-xs text-muted-foreground text-center">
+              Your website will be live at https://{subdomain || 'yoursite'}.aqall.dev
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

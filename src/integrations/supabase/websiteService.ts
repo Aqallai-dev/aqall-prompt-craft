@@ -149,7 +149,7 @@ export class WebsiteService {
     try {
       console.log('Creating subdomain:', { userId, websiteId, subdomain });
       
-      // Check if subdomain is available - with better error handling
+      // Check if subdomain already exists
       const { data: existing, error: checkError } = await supabase
         .from('subdomains')
         .select('*')
@@ -167,11 +167,36 @@ export class WebsiteService {
         }
       }
 
+      // If subdomain exists, check if it belongs to the same user
       if (existing && existing.length > 0) {
-        throw new Error('Subdomain already taken');
+        const existingRecord = existing[0];
+        if (existingRecord.user_id === userId) {
+          // User owns this subdomain, update it
+          console.log('Updating existing subdomain for user:', userId);
+          const { data: updatedData, error: updateError } = await supabase
+            .from('subdomains')
+            .update({
+              website_id: websiteId,
+              status: 'pending',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingRecord.id)
+            .select()
+            .single();
+
+          if (updateError) {
+            console.error('Error updating subdomain:', updateError);
+            throw updateError;
+          }
+
+          return updatedData;
+        } else {
+          // Subdomain belongs to another user
+          throw new Error('Subdomain already taken by another user');
+        }
       }
 
-      // Create subdomain record
+      // Create new subdomain record
       const { data, error } = await supabase
         .from('subdomains')
         .insert({

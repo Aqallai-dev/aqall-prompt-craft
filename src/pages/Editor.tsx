@@ -544,6 +544,9 @@ ${html}
 
     setIsCreatingSubdomain(true);
     try {
+      // Show loading state
+      toast.loading('Publishing website...', { id: 'publish-website' });
+
       // First, save the website to get a website ID
       const websiteData = {
         user_id: user.id,
@@ -555,7 +558,7 @@ ${html}
 
       const savedWebsite = await WebsiteService.saveWebsite(websiteData);
       
-      // Create subdomain in database
+      // Create or update subdomain in database
       const subdomainRecord = await WebsiteService.createSubdomain(
         user.id, 
         savedWebsite.id, 
@@ -564,12 +567,15 @@ ${html}
 
       // Create DNS record
       const dnsService = new GoDaddyDNSService();
-      await dnsService.createSubdomain(subdomain, import.meta.env.VITE_HOSTING_SERVER_IP); // You'll need to set this
+      await dnsService.createSubdomain(subdomain, import.meta.env.VITE_HOSTING_SERVER_IP);
       
       // Update subdomain status to active
       await WebsiteService.updateSubdomainStatus(subdomainRecord.id, 'active');
       
-      toast.success(`Subdomain ${subdomain}.aqall.dev created successfully!`);
+      // Update website as published
+      await WebsiteService.publishWebsite(user.id, `https://${subdomain}.aqall.dev`);
+      
+      toast.success(`Website published successfully!`, { id: 'publish-website' });
       setIsPublishModalOpen(false);
       
       // Show the published URL
@@ -577,7 +583,19 @@ ${html}
       
     } catch (error) {
       console.error('Error creating subdomain:', error);
-      toast.error('Failed to create subdomain. Please try again.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to publish website. Please try again.';
+      
+      if (error.message?.includes('already taken by another user')) {
+        errorMessage = 'This subdomain is already taken by another user. Please choose a different name.';
+      } else if (error.message?.includes('already taken')) {
+        errorMessage = 'This subdomain is already taken. Please choose a different name.';
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
+      toast.error(errorMessage, { id: 'publish-website' });
     } finally {
       setIsCreatingSubdomain(false);
     }
